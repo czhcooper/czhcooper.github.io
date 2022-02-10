@@ -12,13 +12,13 @@
 
     <!-- Open Graph -->
     <meta property="og:title"
-        content="Hisat tutorial - 陈灶煌的博客 | Cooper's Blog">
+        content="Fasta 文件处理大全 - 陈灶煌的博客 | Cooper's Blog">
     
     <meta property="og:type" content="article">
-    <meta property="og:description" content="Hisat算法原理
+    <meta property="og:description" content="#
 ">
     
-    <meta property="article:published_time" content=" 2019-02-10T14:35:00Z">
+    <meta property="article:published_time" content=" 2019-02-20T20:00:00Z">
     
     
     <meta property="article:author" content="Cooper">
@@ -28,10 +28,10 @@
     
     
     <meta property="og:image" content="http://localhost:4000/img/home-my.png">
-    <meta property="og:url" content="http://localhost:4000/2019/02/10/Hisat2%E7%9A%84%E4%BD%BF%E7%94%A8/">
+    <meta property="og:url" content="http://localhost:4000/2019/02/20/Fasta%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86%E5%A4%A7%E5%85%A8/">
     <meta property="og:site_name" content="陈灶煌的博客 | Cooper's Blog">
 
-    <title>Hisat tutorial - 陈灶煌的博客 | Cooper's Blog</title>
+    <title>Fasta 文件处理大全 - 陈灶煌的博客 | Cooper's Blog</title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -40,7 +40,7 @@
     <link rel="shortcut icon" href="/img/favicon.ico">
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="http://localhost:4000/2019/02/10/Hisat2%E7%9A%84%E4%BD%BF%E7%94%A8/">
+    <link rel="canonical" href="http://localhost:4000/2019/02/20/Fasta%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86%E5%A4%A7%E5%85%A8/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href=" /css/bootstrap.min.css">
@@ -235,10 +235,10 @@
                         <a class="tag" href="/archive/?tag=Bioinformatic+tools" title="Bioinformatic tools">Bioinformatic tools</a>
                         
                     </div>
-                    <h1>Hisat tutorial</h1>
+                    <h1>Fasta 文件处理大全</h1>
                     
                     <h2 class="subheading"></h2>
-                    <span class="meta">Posted by Cooper on February 10, 2019</span>
+                    <span class="meta">Posted by Cooper on February 20, 2019</span>
                 </div>
             </div>
         </div>
@@ -264,168 +264,109 @@
                 <!-- Multi-Lingual -->
                 
 
-				<h1 id="hisat算法原理">Hisat算法原理</h1>
+				<p>#</p>
 
-<p><img src="/img/md-post/image-20191115155030163.png" alt="image-20191115155030163" /></p>
+<p>1.文件格式介绍</p>
 
-<h1 id="一建立索引">一、建立索引</h1>
+<p>3.统计</p>
 
-<p>建立基因组索引</p>
+<p>查看有多少行：</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-</pre></td><td class="rouge-code"><pre>#NCBI:
-hisat2-build -p 4 GCF_000224145.3_KH_genomic (1).fna   hisat2_index/
+</pre></td><td class="rouge-code"><pre>grep '&gt;' example.fasta | wc
 </pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>建立基因组+转录组+SNP索引：
-bowtie2的索引只有基因组序列信息，tophat2比对时，转录组信息通过-G参数指定。HISAT2建立索引时，就应该把转录组信息加进去。</p>
+<h3 id="fast-文件统计">Fast 文件统计</h3>
 
-<h3 id="gff文件与gtf文件">GFF文件与GTF文件：</h3>
-
-<p>GFF: general feature format</p>
-
-<p>GTF: gene transfer format</p>
-
-<p>简介：https://www.jianshu.com/p/a27be34d335d</p>
-
-<p>http://www.biotrainee.com/thread-415-1-1.html</p>
-
-<p>将GFF文件转换未GTF</p>
+<p>如果想对fastq文件进行统计，例如统计序列条数，碱基总数，reads读长分布等，可以使用seqkit工具进行操作：</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-</pre></td><td class="rouge-code"><pre>#安装
-conda install gffread -y
-#使用
-gffread GCF_000224145.3_KH_genomic\ \(1\).gff -T -o GCF_000224145.3_KH_genomic.gtf
-#更多使用方法请看网站
+</pre></td><td class="rouge-code"><pre>seqkit stats 0_6_1.fq 0_6_2.fq 
 </pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>HISAT2提供两个Python脚本将GTF文件转换成hisat2-build能使用的文件：</p>
+<p>如果想统计fastq文件每条序列ATCG四种碱基组成以及质量值分布，可以使用seqtk comp工具来完成。</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-</pre></td><td class="rouge-code"><pre>hisat2_extract_exons.py *gtf &gt; GCF_000224145.3_KH_genomic.exon
-hisat2_extract_splice_sites.py *gtf &gt; GCF_000224145.3_KH_genomic.ss
+</pre></td><td class="rouge-code"><pre>seqtk comp SRR8651554_1.fastq.gz SRR8651554_2.fastq.gz
 </pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>此外，HISAT2还支持将SNP信息加入到索引中，这样比对的时候就可以考虑SNP的情况。这仍然需要将SNP文件转换成hisat2-build能使用的文件：</p>
+<p>如果按照位点进行统计，例如统计第一个位点所有序列ATCG以及质量值分布，可以适应seqtk fqchk命令。fqchk的结果可以用来绘制碱基质量以及含量分布图。</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-</pre></td><td class="rouge-code"><pre>#还未看懂输入文件
+</pre></td><td class="rouge-code"><pre>seqtk fqchk SRR8651554_1.fastq.gz
 </pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>将基因组、转录组、SNP建立索引：</p>
+<h3 id="合并文件"><strong>合并文件</strong></h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-</pre></td><td class="rouge-code"><pre>#这里未将snp文件输入
-hisat2-build -p 4 *fna --ss *ss --exon *exon hisat2_index_2/ciona_intestinalis_index
+<p>如果有多个fastq文件，可以使用seqtk mergerpe进行合并，其实cat或者zcat也可以合并，不过seqtk的合并方式有一些差别，cat是将一个文件追加到另一个文件结尾，seqtk mergerpe是每次取文件一个单位合并。</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>seqtk mergepe SRR8651554_1.fastq.gz SRR8651554_2.fastq.gz  |  head -20
 </pre></td></tr></tbody></table></code></pre></div></div>
 
-<p><img src="/img/md-post/image-20200305193830623.png" alt="image-20200305193830623" /></p>
+<h3 id="过滤短的序列"><strong>过滤短的序列</strong></h3>
 
-<h1 id="二比对">二、比对</h1>
+<p>Ion Torrent，pacbio，nanopore测序的fastq文件序列长度并不相同，通常需要过滤较短的序列，例如过滤掉长度小于150bp的序列。可以使用seqtk seq或者seqkit seq进行操作。</p>
 
-<h4 id="usage">Usage:</h4>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-</pre></td><td class="rouge-code"><pre>hisat2 [options]* -x &lt;hisat2-idx&gt; {-1 &lt;m1&gt; -2 &lt;m2&gt; | -U &lt;r&gt; | --sra-acc &lt;SRA accession number&gt;} [-S &lt;hit&gt;]
-</pre></td></tr></tbody></table></code></pre></div></div>
-
-<h3 id="默认参数">默认参数</h3>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
 5
-6
-7
-8
-9
-</pre></td><td class="rouge-code"><pre>0-6/0_6_1.fq.gz -2 0-6/0_6_2.fq.gz  -S hisat2_results/0-6.sam
-
-#解压后比对，结果貌似一样
-time hisat2 -p 4 -x ciona_intestinalis/NCBI/hisat2_index_2/ciona_intestinalis_index -1 0-6/0_6_1.fq -2 0-6/0_6_2.fq -S hisat2_results/deault_paramaters/0-6_gunzip.sam &gt; hisat2_results/deault_paramaters/logs 2&gt;&amp;1
-#用时：
-real	32m35.504s
-user	101m19.816s
-sys	8m12.721s
-
+</pre></td><td class="rouge-code"><pre>#过滤小于150bp序列，并压缩输出 
+seqkit seq -m 150 nanopore.fastq.gz | gzip -  &gt;filter_150.fq.gz
+seqtk seq -L 150 nanopore.fastq.gz
+#保留小于150bp序列
+seqkit seq -M 150 nanopore.fastq.gz
 </pre></td></tr></tbody></table></code></pre></div></div>
 
-<h3 id="for-sl-quant">for SL-quant：</h3>
+<h3 id="转换为列表格式"><strong>转换为列表格式</strong></h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+<p>如何将fastq格式转换为列表格式？可以使用seqkit fx2tb，为什么要做这一步处理呢，转换为列表，这样方便根据ID进行处理。将四行数据转换为一行三列，这样就可以使用常用的列表处理程序来进行处理，例如awk。当然处理完了，还可以使用tab2fx将列表转为换fastq格式。</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>seqkit fx2tab SRR8651554_1.fastq.gz
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="质量值转换"><strong>质量值转换</strong></h3>
+
+<p>目前测序得到的fastq文件，都采用phred+33的格式，但是如果处理之前的文件，还有可能遇见phred+64的模式，一般软件中包含–phred33或者–phred64选项，当然也可以直接在两种质量值之间进行转换。</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
-5
-6
-7
-8
-9
-10
-</pre></td><td class="rouge-code"><pre># 1) end-to-end (without soft-clipping)---in order to make sure that reads originating from trans-spliced RNA fragments do not map.This is the default behaviour of many mappers (bowtie2, tophat2, BBMap, …) but for others, such as STAR or HiSAT2, soft-clipping should be disabled.
-
-#比对
-time hisat2 -p 4 --no-softclip --no-discordant --min-intronlen 20 --max-intronlen 5000 --rna-strandness FR -x ciona_intestinalis/NCBI/hisat2_index_2/ciona_intestinalis_index -1 0-6/0_6_1.fq -2 0-6/0_6_2.fq -S hisat2_results/SL_paramaters/0_6_.sam &gt; hisat2_results/SL_paramaters/logs 2&gt;&amp;1
-#参数
---no-softclip:
---min-mitronlen:
---max-intronlen
---rna-strandness
-
+</pre></td><td class="rouge-code"><pre>#将illumina 1.8转换为1.5
+seqkit convert --to Illumina-1.5+ SRR8651554_1.fastq.gz |head -4
+#将illumina 1.5转换为1.8，什么都不加就是转换为1.8
+seqkit convert  SRR8651554_illmina1.5.gz
 </pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>-p : threads数</p>
+<h3 id="质量控制qc"><strong>质量控制QC</strong></h3>
 
-<p>-x :参考基因组索引文件的前缀</p>
+<p>fastq格式的质量控制其实非常简单，我们前面统计的各种指标，质控软件可以一次性进行统计，绘制出质控图，包括碱基含量分布图与碱基质量分布图通过这两个图来判断fastq文件质量好坏。可以一次性统计很多文件，每个测序数据会生成一个html格式结果和一个压缩格式的文件夹。如果样品太多可以使用multiqc合并多个结果。</p>
 
-<p>-1 :双端测序结果的第一个文件。若有多组数据，使用逗号将文件分隔。Reads的长度可以不一致</p>
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>fastqc -o outdir -t threads fastq1 fastq2 ...
+</pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>-2 :双端测序结果的第二个文件。若有多组数据，使用逗号将文件分隔，并且文件顺序要和-1参数对应。Reads的长度可以不一致</p>
+<p>将多行fasta转换成一行</p>
 
-<p>-U :单端数据文件。若有多组数据，使用逗号将文件分隔。可以和-1、-2参数同时使用。Reads的长度可以不一致</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>awk '/^&gt;/ {printf("\n%s\n",$0);next; } { printf("%s",$0);}  END {printf("\n");}' &lt; cs_complete_mrna.fa &gt; cs_complete_mrna_one.fa
+</pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>–sra-acc :输入SRA登录号，比如SRR353653，SRR353654。多组数据之间使用逗号分隔。HISAT将自动下载并识别数据类型，进行比对</p>
+<p>将fasta每行序列不超过某个数：</p>
 
-<p>-S :指定输出的SAM文件</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>seqtk seq -l 25
+</pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>-q:输入文件为FASTQ格式。FASTQ格式为默认参数</p>
+<p>grep去除–：grep -v</p>
 
-<p>-f : 输入文件为FASTA格式</p>
-
-<p>-r : 输入文件中，每一行代表一条序列，没有序列名和测序质量等。选择此项时，–ignore-quals参数也会被选择</p>
-
-<p>-c : 此参数后是直接比对的序列，而不是包含序列的文件名。序列间用逗号隔开。选择此项时，–ignore-quals参数也会被选择</p>
-
-<p>-s/–skip <int>
-跳过输入文件中前条序列进行比对。
--u/–qupto <int>
-只使用输入文件中前条序列进行比对，默认是没有限制。
--5/–trim5 <int>
-比对前去除每条序列5’端个碱基
--3/–trim3 <int>
-比对前去除每条序列3’端个碱基
-–phred33
-输入的FASTQ文件碱基质量值编码标准为phred33，phred33为默认参数。
-–phred64
-输入的FASTQ文件碱基质量值编码标准为phred64。
-–solexa-quals
-将Solexa的碱基质量值编码标准转换为phred。
-–int-quals</int></int></int></int></p>
-
-<h3 id="question">Question:</h3>
-
-<ol>
-  <li>比较一下直接用genome.fa 与多种数据建立的index，比对的结果有何区别？</li>
-</ol>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>seqtk seq -l 25 cs_complete_mrna_one.fa |grep "&gt;" -A 1 |grep -v -- "^--$"&gt;test.fa
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 
 
@@ -433,17 +374,17 @@ time hisat2 -p 4 --no-softclip --no-discordant --min-intronlen 20 --max-intronle
                 <ul class="pager">
                     
                     <li class="previous">
-                        <a href="/2019/02/01/Trinity-%E4%BD%BF%E7%94%A8/" data-toggle="tooltip" data-placement="top" title="Trinity tutorial">
+                        <a href="/2019/02/10/Hisat2%E7%9A%84%E4%BD%BF%E7%94%A8/" data-toggle="tooltip" data-placement="top" title="Hisat tutorial">
                         Previous<br>
-                        <span>Trinity tutorial</span>
+                        <span>Hisat tutorial</span>
                         </a>
                     </li>
                     
                     
                     <li class="next">
-                        <a href="/2019/02/20/Fasta%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86%E5%A4%A7%E5%85%A8/" data-toggle="tooltip" data-placement="top" title="Fasta 文件处理大全">
+                        <a href="/2019/03/01/Sam%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3/" data-toggle="tooltip" data-placement="top" title="Sam 文件格式详解">
                         Next<br>
-                        <span>Fasta 文件处理大全</span>
+                        <span>Sam 文件格式详解</span>
                         </a>
                     </li>
                     

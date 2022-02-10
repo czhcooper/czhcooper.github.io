@@ -9,11 +9,27 @@
     } ,
   
     {
+      "title"    : "Principle Component Analysis in R",
+      "subtitle" : "",
+      "tags"     : "R, Statistics, Machine learning",
+      "url"      : "/2019/08/10/PCA/",
+      "date"     : "2019-08-10 14:35:00 +0800"
+    } ,
+  
+    {
       "title"    : "Sam 文件格式详解",
       "subtitle" : "",
       "tags"     : "Bioinformatic tools",
       "url"      : "/2019/03/01/Sam%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3/",
       "date"     : "2019-03-01 00:00:00 +0800"
+    } ,
+  
+    {
+      "title"    : "Fasta 文件处理大全",
+      "subtitle" : "",
+      "tags"     : "Bioinformatic tools",
+      "url"      : "/2019/02/20/Fasta%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86%E5%A4%A7%E5%85%A8/",
+      "date"     : "2019-02-20 20:00:00 +0800"
     } ,
   
     {

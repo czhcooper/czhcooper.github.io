@@ -267,6 +267,45 @@
 <hr>
 
 <div class="post-preview">
+    <a href="/2019/08/10/PCA/">
+        <h2 class="post-title">
+            Principle Component Analysis in R
+        </h2>
+        
+        <div class="post-content-preview">
+            
+                参考
+
+画图
+
+目的：测试：筛选变异系数最大的前3个基因，对所有样本作PCA分析
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+
+library(useful)
+setwd("~/data/ciona_i/rna_seq/expression/stringtie/ref_only/")
+read.table("gene_ftkm_all_samples.tsv",header=TR...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Cooper on August 10, 2019
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
     <a href="/2019/03/01/Sam%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3/">
         <h2 class="post-title">
             Sam 文件格式详解
@@ -291,6 +330,44 @@ An alignment of a read to a single reference sequence that may include ...
     </a>
     <p class="post-meta">
         Posted by Cooper on March 1, 2019
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2019/02/20/Fasta%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86%E5%A4%A7%E5%85%A8/">
+        <h2 class="post-title">
+            Fasta 文件处理大全
+        </h2>
+        
+        <div class="post-content-preview">
+            
+                #
+
+1.文件格式介绍
+
+3.统计
+
+查看有多少行：
+
+1
+grep '&gt;' example.fasta | wc
+
+
+Fast 文件统计
+
+如果想对fastq文件进行统计，例如统计序列条数，碱基总数，reads读长分布等，可以使用seqkit工具进行操作：
+
+1
+seqkit stats 0_6_1.fq 0_6_2.fq 
+
+
+如果想统计fastq文件每条序列ATCG四种碱基组成以...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Cooper on February 20, 2019
     </p>
 </div>
 <hr>
@@ -384,10 +461,10 @@ Genomic DNA assembly: o...
         
         
         
-                <a data-sort="0001" 
+                <a data-sort="0002" 
                     href="/archive/?tag=Bioinformatic+tools"
                     title="Bioinformatic tools"
-                    rel="3">Bioinformatic tools</a>
+                    rel="4">Bioinformatic tools</a>
     </div>
 </section>
 

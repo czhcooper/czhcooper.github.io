@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 10 Feb 2022 09:31:07 +0800</pubDate>
-    <lastBuildDate>Thu, 10 Feb 2022 09:31:07 +0800</lastBuildDate>
+    <pubDate>Thu, 10 Feb 2022 09:59:43 +0800</pubDate>
+    <lastBuildDate>Thu, 10 Feb 2022 09:59:43 +0800</lastBuildDate>
     <generator>Jekyll v4.2.1</generator>
     
       <item>
@@ -56,6 +56,315 @@ tags:
         <guid isPermaLink="true">http://localhost:4000/2022/02/10/Typora-image/</guid>
         
         <category>Typora</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Principle Component Analysis in R</title>
+        <description>&lt;p&gt;&lt;a href=&quot;https://www.plob.org/article/11869.html&quot;&gt;参考&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://cran.r-project.org/web/packages/ggfortify/vignettes/plot_pca.html&quot;&gt;画图&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;目的测试筛选变异系数最大的前3个基因对所有样本作pca分析&quot;&gt;目的：测试：筛选变异系数最大的前3个基因，对所有样本作PCA分析&lt;/h2&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;
+library(useful)
+setwd(&quot;~/data/ciona_i/rna_seq/expression/stringtie/ref_only/&quot;)
+read.table(&quot;gene_ftkm_all_samples.tsv&quot;,header=TRUE,row.names = 1,sep=&quot;\t&quot;)-&amp;gt;expression_data
+expression_data[,1:6]-&amp;gt;expression_data
+as.matrix(expression_data)-&amp;gt;expression_data
+#去除表达值全为0的行，有些还会作其它筛选，如低表达，等
+expression_data_nonzeron&amp;lt;-expression_data[rowSums(expression_data)!=0,]
+#对于表达谱数据，因为涉及到PCR的指数扩增，一般会取log处理
+#其它数据log处理会降低数据之间的差异，不一定适用
+expression_log2&amp;lt;-log2(expression_data_nonzeron+1)
+
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;计算变异系数：&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;cv&amp;lt;-apply(expression_log2,1,sd)/rowMeans(expression_log2)
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;根据变异系数排序：&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;expression_log2&amp;lt;-expression_log2[order(cv,decreasing = T),]
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;计算中值绝对偏差 (MAD, median absolute deviation)&lt;strong&gt;度量基因表达变化幅度&lt;/strong&gt;。在基因表达中，尽管某些基因很小的变化会导致重要的生物学意义，但是很小的观察值会引入很大的背景噪音，因此也意义不大。&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;mads&amp;lt;-apply(expression_log2,1,mad)
+expression_log2&amp;lt;-expression_log2[rev(order(mads)),]
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;筛选前3行：&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;data_var3&amp;lt;-expression_log2[1:3,]
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;转置，使得矩阵每一行为一个样品，每一列为变量，即每个基因表达量&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;data_var3_forPCA&amp;lt;-t(data_var3)
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;# 获得样品分组信息
+sample &amp;lt;- rownames(data_var3_forPCA)
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;把样品名字按 &lt;_&gt; 分割，取出其第二部分作为样品的组名&lt;/_&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;###lapply(X, FUC) 对列表或向量中每个元素执行FUC操作，FUNC为自定义或R自带的函数
+group &amp;lt;- unlist(lapply(strsplit(sample, &quot;_&quot;), function(x) x[1]))
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;#根据分组数目确定颜色变量
+colorA &amp;lt;- rainbow(length(unique(group)))
+# 根据每个样品的分组信息获取对应的颜色变量
+colors &amp;lt;- colorA[as.factor(group)]
+# 根据样品分组信息获得legend的颜色
+colorl &amp;lt;- colorA[as.factor(unique(group))]
+
+scatterplot3d(data_var3_forPCA[,1:3], color=colors)
+legend(&quot;top&quot;, legend=levels(as.factor(group)), col=colorl, pch=16, xpd=T, horiz=F, ncol=6)
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/md-post/image-20200402164902387.png&quot; alt=&quot;image-20200402164902387&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;我们看到图中的样品并没有按照预先设定的标签完全分开。当然我们也可以通过其他方法筛选变异最大的三个基因，最终的分类效果不会相差很大。因为不管怎么筛选，我们都只用到了3个基因的表达量。&lt;/p&gt;
+
+&lt;h2 id=&quot;pca&quot;&gt;PCA&lt;/h2&gt;
+
+&lt;p&gt;假如我们把这个数据用PCA来分类，结果是怎样的呢？&lt;/p&gt;
+
+&lt;h3 id=&quot;用fpkm&quot;&gt;用FPKM&lt;/h3&gt;
+
+&lt;p&gt;对之前log化的表达矩阵转置：，行为基因，列为样本&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;expression_log2_t&amp;lt;-t(expression_log2)
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;#group在前面定义过了，Add group column for plotting
+
+label&amp;lt;-as.data.frame(expression_log2_t)
+label$group&amp;lt;-group
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;prcomp() 函数默认中心化为减去平均值，标准化用标准差&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;# By default, prcomp will centralized the data using mean.
+# Normalize data for PCA by dividing each data by column standard deviation.
+# Often, we would normalize data.
+# Only when we care about the real number changes other than the trends,
+# `scale` can be set to TRUE. 
+# We will show the differences of scaling and un-scaling effects.
+pca&amp;lt;-prcomp(expression_log2_t,scale=T)
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;# sdev: standard deviation of the principle components.
+# Square to get variance
+percentVar &amp;lt;- pca$sdev^2 / sum( pca$sdev^2)
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;library(ggfortify)
+autoplot(pca, data=label, colour=&quot;group&quot;) + xlab(paste0(&quot;PC1 (&quot;, round(percentVar[1]*100), &quot;% variance)&quot;)) + ylab(paste0(&quot;PC2 (&quot;, round(percentVar[2]*100), &quot;% variance)&quot;)) + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + theme(legend.position=&quot;right&quot;)
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/md-post/image-20200402175023665.png&quot; alt=&quot;image-20200402175023665&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;采用3个主成分获得的分类效果优于2个主成分，因为这样保留的原始信息更多。&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;# 获得PCH symbol列表
+pch_l &amp;lt;- as.numeric(as.factor(unique(group)))
+# 产生每个样品的pch symbol
+pch &amp;lt;- pch_l[as.factor(group)]
+
+pc &amp;lt;- as.data.frame(pca$x)
+scatterplot3d(x=pc$PC1, y=pc$PC2, z=pc$PC3, pch=pch, color=colors, xlab=paste0(&quot;PC1 (&quot;, round(percentVar[1]*100), &quot;% variance)&quot;), ylab=paste0(&quot;PC2 (&quot;, round(percentVar[2]*100), &quot;% variance)&quot;), zlab=paste0(&quot;PC3 (&quot;, round(percentVar[3]*100), &quot;% variance)&quot;))
+
+legend(-3,8, legend=levels(as.factor(group)), col=colorl, pch=pch_l, xpd=T, horiz=F, ncol=6)
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/md-post/image-20200402181842338.png&quot; alt=&quot;image-20200402181842338&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;还是没有聚在一起？&lt;/p&gt;
+
+&lt;p&gt;当只中心化时：&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;pca&amp;lt;-prcomp(expression_log2_t)
+percentVar &amp;lt;- pca$sdev^2 / sum( pca$sdev^2)
+autoplot(pca, data=label, colour=&quot;group&quot;) + xlab(paste0(&quot;PC1 (&quot;, round(percentVar[1]*100), &quot;% variance)&quot;)) + ylab(paste0(&quot;PC2 (&quot;, round(percentVar[2]*100), &quot;% variance)&quot;)) + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + theme(legend.position=&quot;right&quot;)
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/md-post/image-20200402185224785.png&quot; alt=&quot;image-20200402185224785&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;autoplot一行代码自动画：&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;autoplot(prcomp(expression_log2_t),data=label,colour=&apos;group&apos;,shape=FALSE,label.size=3)
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/md-post/image-20200402191056845.png&quot; alt=&quot;image-20200402191056845&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;画三维图代码与前面相同：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/md-post/image-20200402185402966.png&quot; alt=&quot;image-20200402185402966&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;没有聚在一起看httpswwwbiostarsorgp332836&quot;&gt;没有聚在一起，看https://www.biostars.org/p/332836/&lt;/h4&gt;
+
+&lt;h3 id=&quot;用raw-count作pca&quot;&gt;用raw-count作PCA&lt;/h3&gt;
+
+&lt;p&gt;归一化参考：https://cloud.tencent.com/developer/article/1486102&lt;/p&gt;
+
+&lt;p&gt;有时当表达量为0时，取log会出现错误，可以log(counts+1)来取log值。当x=1时，所有的log系列函数值都为0。这样原本表达量为0的值，取log后仍为0。 这也就是UCSC的XENA下载到的表达矩阵的形式。&lt;/p&gt;
+
+&lt;p&gt;读取featureCount结果文件：&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;read.table(&quot;all_feature.txt&quot;,header=T,skip=1,sep=&quot;\t&quot;,row.names = 1)-&amp;gt;raw_count
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;取6～11列&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;raw_count[,6:11]-&amp;gt;Ci_RawCount
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;化为矩阵&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;as.matrix(Ci_RawCount)-&amp;gt;Ci_RawCount
+##改名字
+colnames(Ci_RawCount)&amp;lt;-c(&quot;X0_2&quot;,&quot;X0_7&quot;,&quot;X0_6&quot;,&quot;A6_1&quot;,&quot;A6_2&quot;,&quot;A6_4&quot;)
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;归一化：&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;log2(Ci_RawCount+1)-&amp;gt;Ci_logCount
+##转置
+t(Ci_logCount)-&amp;gt;Ci_logCount
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;第一种方法画图:&lt;/p&gt;
+
+&lt;p&gt;用ggfortify包画图，遇到“Error: Objects of type prcomp not supported by autoplot.”，重新加载这个包就好了。&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;library(ggfortify)
+label_raw&amp;lt;-as.data.frame(Ci_logCount)
+label_raw$group&amp;lt;-group
+autoplot(prcomp(Ci_logCount),data=label_raw,colour=&apos;group&apos;,shape=FALSE,label.size=3)
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/md-post/image-20200407043606492.png&quot; alt=&quot;image-20200407043606492&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;第二种方法画图：&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;project.pca &amp;lt;- prcomp(Ci_logCount)
+summary(project.pca)
+#Determine the proportion of variance of each component
+#Proportion of variance equals (PC stdev^2) / (sum all PCs stdev^2)
+project.pca.proportionvariances &amp;lt;- ((project.pca$sdev^2) / (sum(project.pca$sdev^2)))*100
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Scree plot&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;barplot(project.pca.proportionvariances, cex.names=1, xlab=paste(&quot;Principal component (PC), 1-&quot;, length(project.pca$sdev)), ylab=&quot;Proportion of variation (%)&quot;, main=&quot;Scree plot&quot;, ylim=c(0,100))
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/md-post/image-20200407040437164.png&quot; alt=&quot;image-20200407040437164&quot; /&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;par(cex=1.0, cex.axis=0.8, cex.main=0.8)
+pairs(project.pca$x[,1:5], col=&quot;black&quot;, main=&quot;Principal components analysis bi-plot\nPCs 1-5&quot;, pch=16)
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/md-post/image-20200407040530899.png&quot; alt=&quot;image-20200407040530899&quot; /&gt;&lt;/p&gt;
+</description>
+        <pubDate>Sat, 10 Aug 2019 14:35:00 +0800</pubDate>
+        <link>http://localhost:4000/2019/08/10/PCA/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/08/10/PCA/</guid>
+        
+        <category>R</category>
+        
+        <category>Statistics</category>
+        
+        <category>Machine learning</category>
         
         
       </item>
@@ -610,6 +919,122 @@ Ctrl+H 向左移动1kb碱基距离； Ctrl+L 向右移动1kb碱基距离
         <pubDate>Fri, 01 Mar 2019 00:00:00 +0800</pubDate>
         <link>http://localhost:4000/2019/03/01/Sam%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3/</link>
         <guid isPermaLink="true">http://localhost:4000/2019/03/01/Sam%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3/</guid>
+        
+        <category>Bioinformatic tools</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Fasta 文件处理大全</title>
+        <description>&lt;p&gt;#&lt;/p&gt;
+
+&lt;p&gt;1.文件格式介绍&lt;/p&gt;
+
+&lt;p&gt;3.统计&lt;/p&gt;
+
+&lt;p&gt;查看有多少行：&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;grep &apos;&amp;gt;&apos; example.fasta | wc
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;fast-文件统计&quot;&gt;Fast 文件统计&lt;/h3&gt;
+
+&lt;p&gt;如果想对fastq文件进行统计，例如统计序列条数，碱基总数，reads读长分布等，可以使用seqkit工具进行操作：&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;seqkit stats 0_6_1.fq 0_6_2.fq 
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;如果想统计fastq文件每条序列ATCG四种碱基组成以及质量值分布，可以使用seqtk comp工具来完成。&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;seqtk comp SRR8651554_1.fastq.gz SRR8651554_2.fastq.gz
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;如果按照位点进行统计，例如统计第一个位点所有序列ATCG以及质量值分布，可以适应seqtk fqchk命令。fqchk的结果可以用来绘制碱基质量以及含量分布图。&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;seqtk fqchk SRR8651554_1.fastq.gz
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;合并文件&quot;&gt;&lt;strong&gt;合并文件&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;如果有多个fastq文件，可以使用seqtk mergerpe进行合并，其实cat或者zcat也可以合并，不过seqtk的合并方式有一些差别，cat是将一个文件追加到另一个文件结尾，seqtk mergerpe是每次取文件一个单位合并。&lt;/p&gt;
+
+&lt;div class=&quot;language-text highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;seqtk mergepe SRR8651554_1.fastq.gz SRR8651554_2.fastq.gz  |  head -20
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;过滤短的序列&quot;&gt;&lt;strong&gt;过滤短的序列&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;Ion Torrent，pacbio，nanopore测序的fastq文件序列长度并不相同，通常需要过滤较短的序列，例如过滤掉长度小于150bp的序列。可以使用seqtk seq或者seqkit seq进行操作。&lt;/p&gt;
+
+&lt;div class=&quot;language-text highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;#过滤小于150bp序列，并压缩输出 
+seqkit seq -m 150 nanopore.fastq.gz | gzip -  &amp;gt;filter_150.fq.gz
+seqtk seq -L 150 nanopore.fastq.gz
+#保留小于150bp序列
+seqkit seq -M 150 nanopore.fastq.gz
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;转换为列表格式&quot;&gt;&lt;strong&gt;转换为列表格式&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;如何将fastq格式转换为列表格式？可以使用seqkit fx2tb，为什么要做这一步处理呢，转换为列表，这样方便根据ID进行处理。将四行数据转换为一行三列，这样就可以使用常用的列表处理程序来进行处理，例如awk。当然处理完了，还可以使用tab2fx将列表转为换fastq格式。&lt;/p&gt;
+
+&lt;div class=&quot;language-text highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;seqkit fx2tab SRR8651554_1.fastq.gz
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;质量值转换&quot;&gt;&lt;strong&gt;质量值转换&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;目前测序得到的fastq文件，都采用phred+33的格式，但是如果处理之前的文件，还有可能遇见phred+64的模式，一般软件中包含–phred33或者–phred64选项，当然也可以直接在两种质量值之间进行转换。&lt;/p&gt;
+
+&lt;div class=&quot;language-text highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;#将illumina 1.8转换为1.5
+seqkit convert --to Illumina-1.5+ SRR8651554_1.fastq.gz |head -4
+#将illumina 1.5转换为1.8，什么都不加就是转换为1.8
+seqkit convert  SRR8651554_illmina1.5.gz
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;质量控制qc&quot;&gt;&lt;strong&gt;质量控制QC&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;fastq格式的质量控制其实非常简单，我们前面统计的各种指标，质控软件可以一次性进行统计，绘制出质控图，包括碱基含量分布图与碱基质量分布图通过这两个图来判断fastq文件质量好坏。可以一次性统计很多文件，每个测序数据会生成一个html格式结果和一个压缩格式的文件夹。如果样品太多可以使用multiqc合并多个结果。&lt;/p&gt;
+
+&lt;div class=&quot;language-text highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;fastqc -o outdir -t threads fastq1 fastq2 ...
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;将多行fasta转换成一行&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;awk &apos;/^&amp;gt;/ {printf(&quot;\n%s\n&quot;,$0);next; } { printf(&quot;%s&quot;,$0);}  END {printf(&quot;\n&quot;);}&apos; &amp;lt; cs_complete_mrna.fa &amp;gt; cs_complete_mrna_one.fa
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;将fasta每行序列不超过某个数：&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;seqtk seq -l 25
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;grep去除–：grep -v&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;seqtk seq -l 25 cs_complete_mrna_one.fa |grep &quot;&amp;gt;&quot; -A 1 |grep -v -- &quot;^--$&quot;&amp;gt;test.fa
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+</description>
+        <pubDate>Wed, 20 Feb 2019 20:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2019/02/20/Fasta%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86%E5%A4%A7%E5%85%A8/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/02/20/Fasta%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86%E5%A4%A7%E5%85%A8/</guid>
         
         <category>Bioinformatic tools</category>
         

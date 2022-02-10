@@ -12,26 +12,30 @@
 
     <!-- Open Graph -->
     <meta property="og:title"
-        content="Hisat tutorial - 陈灶煌的博客 | Cooper's Blog">
+        content="Principle Component Analysis in R - 陈灶煌的博客 | Cooper's Blog">
     
     <meta property="og:type" content="article">
-    <meta property="og:description" content="Hisat算法原理
+    <meta property="og:description" content="参考
 ">
     
-    <meta property="article:published_time" content=" 2019-02-10T14:35:00Z">
+    <meta property="article:published_time" content=" 2019-08-10T14:35:00Z">
     
     
     <meta property="article:author" content="Cooper">
     
     
-    <meta property="article:tag" content="Bioinformatic tools">
+    <meta property="article:tag" content="R">
+    
+    <meta property="article:tag" content="Statistics">
+    
+    <meta property="article:tag" content="Machine learning">
     
     
     <meta property="og:image" content="http://localhost:4000/img/home-my.png">
-    <meta property="og:url" content="http://localhost:4000/2019/02/10/Hisat2%E7%9A%84%E4%BD%BF%E7%94%A8/">
+    <meta property="og:url" content="http://localhost:4000/2019/08/10/PCA/">
     <meta property="og:site_name" content="陈灶煌的博客 | Cooper's Blog">
 
-    <title>Hisat tutorial - 陈灶煌的博客 | Cooper's Blog</title>
+    <title>Principle Component Analysis in R - 陈灶煌的博客 | Cooper's Blog</title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -40,7 +44,7 @@
     <link rel="shortcut icon" href="/img/favicon.ico">
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="http://localhost:4000/2019/02/10/Hisat2%E7%9A%84%E4%BD%BF%E7%94%A8/">
+    <link rel="canonical" href="http://localhost:4000/2019/08/10/PCA/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href=" /css/bootstrap.min.css">
@@ -232,13 +236,17 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/archive/?tag=Bioinformatic+tools" title="Bioinformatic tools">Bioinformatic tools</a>
+                        <a class="tag" href="/archive/?tag=R" title="R">R</a>
+                        
+                        <a class="tag" href="/archive/?tag=Statistics" title="Statistics">Statistics</a>
+                        
+                        <a class="tag" href="/archive/?tag=Machine+learning" title="Machine learning">Machine learning</a>
                         
                     </div>
-                    <h1>Hisat tutorial</h1>
+                    <h1>Principle Component Analysis in R</h1>
                     
                     <h2 class="subheading"></h2>
-                    <span class="meta">Posted by Cooper on February 10, 2019</span>
+                    <span class="meta">Posted by Cooper on August 10, 2019</span>
                 </div>
             </div>
         </div>
@@ -264,102 +272,11 @@
                 <!-- Multi-Lingual -->
                 
 
-				<h1 id="hisat算法原理">Hisat算法原理</h1>
+				<p><a href="https://www.plob.org/article/11869.html">参考</a></p>
 
-<p><img src="/img/md-post/image-20191115155030163.png" alt="image-20191115155030163" /></p>
+<p><a href="https://cran.r-project.org/web/packages/ggfortify/vignettes/plot_pca.html">画图</a></p>
 
-<h1 id="一建立索引">一、建立索引</h1>
-
-<p>建立基因组索引</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-</pre></td><td class="rouge-code"><pre>#NCBI:
-hisat2-build -p 4 GCF_000224145.3_KH_genomic (1).fna   hisat2_index/
-</pre></td></tr></tbody></table></code></pre></div></div>
-
-<p>建立基因组+转录组+SNP索引：
-bowtie2的索引只有基因组序列信息，tophat2比对时，转录组信息通过-G参数指定。HISAT2建立索引时，就应该把转录组信息加进去。</p>
-
-<h3 id="gff文件与gtf文件">GFF文件与GTF文件：</h3>
-
-<p>GFF: general feature format</p>
-
-<p>GTF: gene transfer format</p>
-
-<p>简介：https://www.jianshu.com/p/a27be34d335d</p>
-
-<p>http://www.biotrainee.com/thread-415-1-1.html</p>
-
-<p>将GFF文件转换未GTF</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-</pre></td><td class="rouge-code"><pre>#安装
-conda install gffread -y
-#使用
-gffread GCF_000224145.3_KH_genomic\ \(1\).gff -T -o GCF_000224145.3_KH_genomic.gtf
-#更多使用方法请看网站
-</pre></td></tr></tbody></table></code></pre></div></div>
-
-<p>HISAT2提供两个Python脚本将GTF文件转换成hisat2-build能使用的文件：</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-</pre></td><td class="rouge-code"><pre>hisat2_extract_exons.py *gtf &gt; GCF_000224145.3_KH_genomic.exon
-hisat2_extract_splice_sites.py *gtf &gt; GCF_000224145.3_KH_genomic.ss
-</pre></td></tr></tbody></table></code></pre></div></div>
-
-<p>此外，HISAT2还支持将SNP信息加入到索引中，这样比对的时候就可以考虑SNP的情况。这仍然需要将SNP文件转换成hisat2-build能使用的文件：</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-</pre></td><td class="rouge-code"><pre>#还未看懂输入文件
-</pre></td></tr></tbody></table></code></pre></div></div>
-
-<p>将基因组、转录组、SNP建立索引：</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-</pre></td><td class="rouge-code"><pre>#这里未将snp文件输入
-hisat2-build -p 4 *fna --ss *ss --exon *exon hisat2_index_2/ciona_intestinalis_index
-</pre></td></tr></tbody></table></code></pre></div></div>
-
-<p><img src="/img/md-post/image-20200305193830623.png" alt="image-20200305193830623" /></p>
-
-<h1 id="二比对">二、比对</h1>
-
-<h4 id="usage">Usage:</h4>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-</pre></td><td class="rouge-code"><pre>hisat2 [options]* -x &lt;hisat2-idx&gt; {-1 &lt;m1&gt; -2 &lt;m2&gt; | -U &lt;r&gt; | --sra-acc &lt;SRA accession number&gt;} [-S &lt;hit&gt;]
-</pre></td></tr></tbody></table></code></pre></div></div>
-
-<h3 id="默认参数">默认参数</h3>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-</pre></td><td class="rouge-code"><pre>0-6/0_6_1.fq.gz -2 0-6/0_6_2.fq.gz  -S hisat2_results/0-6.sam
-
-#解压后比对，结果貌似一样
-time hisat2 -p 4 -x ciona_intestinalis/NCBI/hisat2_index_2/ciona_intestinalis_index -1 0-6/0_6_1.fq -2 0-6/0_6_2.fq -S hisat2_results/deault_paramaters/0-6_gunzip.sam &gt; hisat2_results/deault_paramaters/logs 2&gt;&amp;1
-#用时：
-real	32m35.504s
-user	101m19.816s
-sys	8m12.721s
-
-</pre></td></tr></tbody></table></code></pre></div></div>
-
-<h3 id="for-sl-quant">for SL-quant：</h3>
+<h2 id="目的测试筛选变异系数最大的前3个基因对所有样本作pca分析">目的：测试：筛选变异系数最大的前3个基因，对所有样本作PCA分析</h2>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
@@ -371,79 +288,300 @@ sys	8m12.721s
 8
 9
 10
-</pre></td><td class="rouge-code"><pre># 1) end-to-end (without soft-clipping)---in order to make sure that reads originating from trans-spliced RNA fragments do not map.This is the default behaviour of many mappers (bowtie2, tophat2, BBMap, …) but for others, such as STAR or HiSAT2, soft-clipping should be disabled.
-
-#比对
-time hisat2 -p 4 --no-softclip --no-discordant --min-intronlen 20 --max-intronlen 5000 --rna-strandness FR -x ciona_intestinalis/NCBI/hisat2_index_2/ciona_intestinalis_index -1 0-6/0_6_1.fq -2 0-6/0_6_2.fq -S hisat2_results/SL_paramaters/0_6_.sam &gt; hisat2_results/SL_paramaters/logs 2&gt;&amp;1
-#参数
---no-softclip:
---min-mitronlen:
---max-intronlen
---rna-strandness
+11
+12
+</pre></td><td class="rouge-code"><pre>
+library(useful)
+setwd("~/data/ciona_i/rna_seq/expression/stringtie/ref_only/")
+read.table("gene_ftkm_all_samples.tsv",header=TRUE,row.names = 1,sep="\t")-&gt;expression_data
+expression_data[,1:6]-&gt;expression_data
+as.matrix(expression_data)-&gt;expression_data
+#去除表达值全为0的行，有些还会作其它筛选，如低表达，等
+expression_data_nonzeron&lt;-expression_data[rowSums(expression_data)!=0,]
+#对于表达谱数据，因为涉及到PCR的指数扩增，一般会取log处理
+#其它数据log处理会降低数据之间的差异，不一定适用
+expression_log2&lt;-log2(expression_data_nonzeron+1)
 
 </pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>-p : threads数</p>
+<p>计算变异系数：</p>
 
-<p>-x :参考基因组索引文件的前缀</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>cv&lt;-apply(expression_log2,1,sd)/rowMeans(expression_log2)
+</pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>-1 :双端测序结果的第一个文件。若有多组数据，使用逗号将文件分隔。Reads的长度可以不一致</p>
+<p>根据变异系数排序：</p>
 
-<p>-2 :双端测序结果的第二个文件。若有多组数据，使用逗号将文件分隔，并且文件顺序要和-1参数对应。Reads的长度可以不一致</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>expression_log2&lt;-expression_log2[order(cv,decreasing = T),]
+</pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>-U :单端数据文件。若有多组数据，使用逗号将文件分隔。可以和-1、-2参数同时使用。Reads的长度可以不一致</p>
+<p>计算中值绝对偏差 (MAD, median absolute deviation)<strong>度量基因表达变化幅度</strong>。在基因表达中，尽管某些基因很小的变化会导致重要的生物学意义，但是很小的观察值会引入很大的背景噪音，因此也意义不大。</p>
 
-<p>–sra-acc :输入SRA登录号，比如SRR353653，SRR353654。多组数据之间使用逗号分隔。HISAT将自动下载并识别数据类型，进行比对</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>mads&lt;-apply(expression_log2,1,mad)
+expression_log2&lt;-expression_log2[rev(order(mads)),]
+</pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>-S :指定输出的SAM文件</p>
+<p>筛选前3行：</p>
 
-<p>-q:输入文件为FASTQ格式。FASTQ格式为默认参数</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>data_var3&lt;-expression_log2[1:3,]
+</pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>-f : 输入文件为FASTA格式</p>
+<p>转置，使得矩阵每一行为一个样品，每一列为变量，即每个基因表达量</p>
 
-<p>-r : 输入文件中，每一行代表一条序列，没有序列名和测序质量等。选择此项时，–ignore-quals参数也会被选择</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>data_var3_forPCA&lt;-t(data_var3)
+</pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>-c : 此参数后是直接比对的序列，而不是包含序列的文件名。序列间用逗号隔开。选择此项时，–ignore-quals参数也会被选择</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre># 获得样品分组信息
+sample &lt;- rownames(data_var3_forPCA)
+</pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>-s/–skip <int>
-跳过输入文件中前条序列进行比对。
--u/–qupto <int>
-只使用输入文件中前条序列进行比对，默认是没有限制。
--5/–trim5 <int>
-比对前去除每条序列5’端个碱基
--3/–trim3 <int>
-比对前去除每条序列3’端个碱基
-–phred33
-输入的FASTQ文件碱基质量值编码标准为phred33，phred33为默认参数。
-–phred64
-输入的FASTQ文件碱基质量值编码标准为phred64。
-–solexa-quals
-将Solexa的碱基质量值编码标准转换为phred。
-–int-quals</int></int></int></int></p>
+<p>把样品名字按 <_> 分割，取出其第二部分作为样品的组名</_></p>
 
-<h3 id="question">Question:</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>###lapply(X, FUC) 对列表或向量中每个元素执行FUC操作，FUNC为自定义或R自带的函数
+group &lt;- unlist(lapply(strsplit(sample, "_"), function(x) x[1]))
+</pre></td></tr></tbody></table></code></pre></div></div>
 
-<ol>
-  <li>比较一下直接用genome.fa 与多种数据建立的index，比对的结果有何区别？</li>
-</ol>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>#根据分组数目确定颜色变量
+colorA &lt;- rainbow(length(unique(group)))
+# 根据每个样品的分组信息获取对应的颜色变量
+colors &lt;- colorA[as.factor(group)]
+# 根据样品分组信息获得legend的颜色
+colorl &lt;- colorA[as.factor(unique(group))]
 
+scatterplot3d(data_var3_forPCA[,1:3], color=colors)
+legend("top", legend=levels(as.factor(group)), col=colorl, pch=16, xpd=T, horiz=F, ncol=6)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="/img/md-post/image-20200402164902387.png" alt="image-20200402164902387" /></p>
+
+<p>我们看到图中的样品并没有按照预先设定的标签完全分开。当然我们也可以通过其他方法筛选变异最大的三个基因，最终的分类效果不会相差很大。因为不管怎么筛选，我们都只用到了3个基因的表达量。</p>
+
+<h2 id="pca">PCA</h2>
+
+<p>假如我们把这个数据用PCA来分类，结果是怎样的呢？</p>
+
+<h3 id="用fpkm">用FPKM</h3>
+
+<p>对之前log化的表达矩阵转置：，行为基因，列为样本</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>expression_log2_t&lt;-t(expression_log2)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>#group在前面定义过了，Add group column for plotting
+
+label&lt;-as.data.frame(expression_log2_t)
+label$group&lt;-group
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>prcomp() 函数默认中心化为减去平均值，标准化用标准差</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre># By default, prcomp will centralized the data using mean.
+# Normalize data for PCA by dividing each data by column standard deviation.
+# Often, we would normalize data.
+# Only when we care about the real number changes other than the trends,
+# `scale` can be set to TRUE. 
+# We will show the differences of scaling and un-scaling effects.
+pca&lt;-prcomp(expression_log2_t,scale=T)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre># sdev: standard deviation of the principle components.
+# Square to get variance
+percentVar &lt;- pca$sdev^2 / sum( pca$sdev^2)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>library(ggfortify)
+autoplot(pca, data=label, colour="group") + xlab(paste0("PC1 (", round(percentVar[1]*100), "% variance)")) + ylab(paste0("PC2 (", round(percentVar[2]*100), "% variance)")) + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + theme(legend.position="right")
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="/img/md-post/image-20200402175023665.png" alt="image-20200402175023665" /></p>
+
+<p>采用3个主成分获得的分类效果优于2个主成分，因为这样保留的原始信息更多。</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre># 获得PCH symbol列表
+pch_l &lt;- as.numeric(as.factor(unique(group)))
+# 产生每个样品的pch symbol
+pch &lt;- pch_l[as.factor(group)]
+
+pc &lt;- as.data.frame(pca$x)
+scatterplot3d(x=pc$PC1, y=pc$PC2, z=pc$PC3, pch=pch, color=colors, xlab=paste0("PC1 (", round(percentVar[1]*100), "% variance)"), ylab=paste0("PC2 (", round(percentVar[2]*100), "% variance)"), zlab=paste0("PC3 (", round(percentVar[3]*100), "% variance)"))
+
+legend(-3,8, legend=levels(as.factor(group)), col=colorl, pch=pch_l, xpd=T, horiz=F, ncol=6)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="/img/md-post/image-20200402181842338.png" alt="image-20200402181842338" /></p>
+
+<p>还是没有聚在一起？</p>
+
+<p>当只中心化时：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>pca&lt;-prcomp(expression_log2_t)
+percentVar &lt;- pca$sdev^2 / sum( pca$sdev^2)
+autoplot(pca, data=label, colour="group") + xlab(paste0("PC1 (", round(percentVar[1]*100), "% variance)")) + ylab(paste0("PC2 (", round(percentVar[2]*100), "% variance)")) + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + theme(legend.position="right")
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="/img/md-post/image-20200402185224785.png" alt="image-20200402185224785" /></p>
+
+<p>autoplot一行代码自动画：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>autoplot(prcomp(expression_log2_t),data=label,colour='group',shape=FALSE,label.size=3)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="/img/md-post/image-20200402191056845.png" alt="image-20200402191056845" /></p>
+
+<p>画三维图代码与前面相同：</p>
+
+<p><img src="/img/md-post/image-20200402185402966.png" alt="image-20200402185402966" /></p>
+
+<h4 id="没有聚在一起看httpswwwbiostarsorgp332836">没有聚在一起，看https://www.biostars.org/p/332836/</h4>
+
+<h3 id="用raw-count作pca">用raw-count作PCA</h3>
+
+<p>归一化参考：https://cloud.tencent.com/developer/article/1486102</p>
+
+<p>有时当表达量为0时，取log会出现错误，可以log(counts+1)来取log值。当x=1时，所有的log系列函数值都为0。这样原本表达量为0的值，取log后仍为0。 这也就是UCSC的XENA下载到的表达矩阵的形式。</p>
+
+<p>读取featureCount结果文件：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>read.table("all_feature.txt",header=T,skip=1,sep="\t",row.names = 1)-&gt;raw_count
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>取6～11列</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>raw_count[,6:11]-&gt;Ci_RawCount
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>化为矩阵</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>as.matrix(Ci_RawCount)-&gt;Ci_RawCount
+##改名字
+colnames(Ci_RawCount)&lt;-c("X0_2","X0_7","X0_6","A6_1","A6_2","A6_4")
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>归一化：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>log2(Ci_RawCount+1)-&gt;Ci_logCount
+##转置
+t(Ci_logCount)-&gt;Ci_logCount
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>第一种方法画图:</p>
+
+<p>用ggfortify包画图，遇到“Error: Objects of type prcomp not supported by autoplot.”，重新加载这个包就好了。</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>library(ggfortify)
+label_raw&lt;-as.data.frame(Ci_logCount)
+label_raw$group&lt;-group
+autoplot(prcomp(Ci_logCount),data=label_raw,colour='group',shape=FALSE,label.size=3)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="/img/md-post/image-20200407043606492.png" alt="image-20200407043606492" /></p>
+
+<p>第二种方法画图：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>project.pca &lt;- prcomp(Ci_logCount)
+summary(project.pca)
+#Determine the proportion of variance of each component
+#Proportion of variance equals (PC stdev^2) / (sum all PCs stdev^2)
+project.pca.proportionvariances &lt;- ((project.pca$sdev^2) / (sum(project.pca$sdev^2)))*100
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Scree plot</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>barplot(project.pca.proportionvariances, cex.names=1, xlab=paste("Principal component (PC), 1-", length(project.pca$sdev)), ylab="Proportion of variation (%)", main="Scree plot", ylim=c(0,100))
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="/img/md-post/image-20200407040437164.png" alt="image-20200407040437164" /></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>par(cex=1.0, cex.axis=0.8, cex.main=0.8)
+pairs(project.pca$x[,1:5], col="black", main="Principal components analysis bi-plot\nPCs 1-5", pch=16)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="/img/md-post/image-20200407040530899.png" alt="image-20200407040530899" /></p>
 
 
                 <hr style="visibility: hidden;">
                 <ul class="pager">
                     
                     <li class="previous">
-                        <a href="/2019/02/01/Trinity-%E4%BD%BF%E7%94%A8/" data-toggle="tooltip" data-placement="top" title="Trinity tutorial">
+                        <a href="/2019/03/01/Sam%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3/" data-toggle="tooltip" data-placement="top" title="Sam 文件格式详解">
                         Previous<br>
-                        <span>Trinity tutorial</span>
+                        <span>Sam 文件格式详解</span>
                         </a>
                     </li>
                     
                     
                     <li class="next">
-                        <a href="/2019/02/20/Fasta%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86%E5%A4%A7%E5%85%A8/" data-toggle="tooltip" data-placement="top" title="Fasta 文件处理大全">
+                        <a href="/2022/02/10/Typora-image/" data-toggle="tooltip" data-placement="top" title="关于 Typora 的图片显示问题">
                         Next<br>
-                        <span>Fasta 文件处理大全</span>
+                        <span>关于 Typora 的图片显示问题</span>
                         </a>
                     </li>
                     

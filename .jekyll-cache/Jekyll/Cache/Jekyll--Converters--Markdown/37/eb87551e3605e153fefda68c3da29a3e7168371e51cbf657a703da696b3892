@@ -1,0 +1,105 @@
+I"r<p>#</p>
+
+<p>1.文件格式介绍</p>
+
+<p>3.统计</p>
+
+<p>查看有多少行：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>grep '&gt;' example.fasta | wc
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="fast-文件统计">Fast 文件统计</h3>
+
+<p>如果想对fastq文件进行统计，例如统计序列条数，碱基总数，reads读长分布等，可以使用seqkit工具进行操作：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>seqkit stats 0_6_1.fq 0_6_2.fq 
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>如果想统计fastq文件每条序列ATCG四种碱基组成以及质量值分布，可以使用seqtk comp工具来完成。</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>seqtk comp SRR8651554_1.fastq.gz SRR8651554_2.fastq.gz
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>如果按照位点进行统计，例如统计第一个位点所有序列ATCG以及质量值分布，可以适应seqtk fqchk命令。fqchk的结果可以用来绘制碱基质量以及含量分布图。</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>seqtk fqchk SRR8651554_1.fastq.gz
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="合并文件"><strong>合并文件</strong></h3>
+
+<p>如果有多个fastq文件，可以使用seqtk mergerpe进行合并，其实cat或者zcat也可以合并，不过seqtk的合并方式有一些差别，cat是将一个文件追加到另一个文件结尾，seqtk mergerpe是每次取文件一个单位合并。</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>seqtk mergepe SRR8651554_1.fastq.gz SRR8651554_2.fastq.gz  |  head -20
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="过滤短的序列"><strong>过滤短的序列</strong></h3>
+
+<p>Ion Torrent，pacbio，nanopore测序的fastq文件序列长度并不相同，通常需要过滤较短的序列，例如过滤掉长度小于150bp的序列。可以使用seqtk seq或者seqkit seq进行操作。</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>#过滤小于150bp序列，并压缩输出 
+seqkit seq -m 150 nanopore.fastq.gz | gzip -  &gt;filter_150.fq.gz
+seqtk seq -L 150 nanopore.fastq.gz
+#保留小于150bp序列
+seqkit seq -M 150 nanopore.fastq.gz
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="转换为列表格式"><strong>转换为列表格式</strong></h3>
+
+<p>如何将fastq格式转换为列表格式？可以使用seqkit fx2tb，为什么要做这一步处理呢，转换为列表，这样方便根据ID进行处理。将四行数据转换为一行三列，这样就可以使用常用的列表处理程序来进行处理，例如awk。当然处理完了，还可以使用tab2fx将列表转为换fastq格式。</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>seqkit fx2tab SRR8651554_1.fastq.gz
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="质量值转换"><strong>质量值转换</strong></h3>
+
+<p>目前测序得到的fastq文件，都采用phred+33的格式，但是如果处理之前的文件，还有可能遇见phred+64的模式，一般软件中包含–phred33或者–phred64选项，当然也可以直接在两种质量值之间进行转换。</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>#将illumina 1.8转换为1.5
+seqkit convert --to Illumina-1.5+ SRR8651554_1.fastq.gz |head -4
+#将illumina 1.5转换为1.8，什么都不加就是转换为1.8
+seqkit convert  SRR8651554_illmina1.5.gz
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="质量控制qc"><strong>质量控制QC</strong></h3>
+
+<p>fastq格式的质量控制其实非常简单，我们前面统计的各种指标，质控软件可以一次性进行统计，绘制出质控图，包括碱基含量分布图与碱基质量分布图通过这两个图来判断fastq文件质量好坏。可以一次性统计很多文件，每个测序数据会生成一个html格式结果和一个压缩格式的文件夹。如果样品太多可以使用multiqc合并多个结果。</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>fastqc -o outdir -t threads fastq1 fastq2 ...
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>将多行fasta转换成一行</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>awk '/^&gt;/ {printf("\n%s\n",$0);next; } { printf("%s",$0);}  END {printf("\n");}' &lt; cs_complete_mrna.fa &gt; cs_complete_mrna_one.fa
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>将fasta每行序列不超过某个数：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>seqtk seq -l 25
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>grep去除–：grep -v</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>seqtk seq -l 25 cs_complete_mrna_one.fa |grep "&gt;" -A 1 |grep -v -- "^--$"&gt;test.fa
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+:ET

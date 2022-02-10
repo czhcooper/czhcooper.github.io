@@ -3,7 +3,7 @@ title: Czh's Blog
 SEOTitle: 陈灶煌的博客 | Cooper's Blog
 header-img: img/home-friends4.png
 email: laobbocooper@gmail.com
-description: "I'm still searching for something I can dedicate my life to"
+description: ""
 keyword: "陈灶煌, chen zaohuang, zaohuangchen,  陈灶煌的博客, 博客, 个人网站, 互联网, Web, JavaScript, 前端, 设计"
 url: "https://czhcooper.github.io"              # your host, for absolute URL
 baseurl: ""                             # for example, '/blog' if your blog hosted on 'host/blog'
@@ -14,7 +14,7 @@ future: true
 # SNS settings
 RSS: false
 #weibo_username:     
-#zhihu_username:     huxpro
+#zhihu_username:     
 github_username:    czhcooper
 twitter_username:   chencooper1
 facebook_username:  chen.zaohuang.90
@@ -78,8 +78,8 @@ netease_comment: false
 
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
-sidebar-about-description: ""
-sidebar-avatar: img/home-my.png # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-about-description: "Find something I can dedicate my life to."
+sidebar-avatar: /img/home-my.png # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
 

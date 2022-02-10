@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="I'm still searching for something I can dedicate my life to">
+    <meta name="keywords" content="陈灶煌, chen zaohuang, zaohuangchen,  陈灶煌的博客, 博客, 个人网站, 互联网, Web, JavaScript, 前端, 设计">
+    <meta name="theme-color" content="#000000">
+
+    <!-- Open Graph -->
+    <meta property="og:title"
+        content="Sam 文件格式详解 - 陈灶煌的博客 | Cooper's Blog">
+    
+    <meta property="og:type" content="article">
+    <meta property="og:description" content="sam文件介绍
+">
+    
+    <meta property="article:published_time" content=" 2019-03-01T00:00:00Z">
+    
+    
+    <meta property="article:author" content="Cooper">
+    
+    
+    <meta property="article:tag" content="Bioinformatic tools">
+    
+    
+    <meta property="og:image" content="http://localhost:4000img/home-my.png">
+    <meta property="og:url" content="http://localhost:4000/2019/03/01/Sam%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3/">
+    <meta property="og:site_name" content="陈灶煌的博客 | Cooper's Blog">
+
+    <title>Sam 文件格式详解 - 陈灶煌的博客 | Cooper's Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="http://localhost:4000/2019/03/01/Sam%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href=" /css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href=" /css/hux-blog.min.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet"
+        type="text/css">
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    <!-- Google AdSense -->
+    <script data-ad-client="ca-pub-6487568398225121" async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Czh's Blog</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div id="huxblog_navbar">
+                <div class="navbar-collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="/">Home</a>
+                        </li>
+                        
+                        
+                        
+                        
+                        <li>
+                            <a href="/about/">About</a>
+                        </li>
+                        
+                        
+                        
+                        <li>
+                            <a href="/archive/">Archive</a>
+                        </li>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <li class="search-icon">
+                            <a href="javascript:void(0)">
+                                <i class="fa fa-search"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <script>
+        // Drop Bootstarp low-performance Navbar
+        // Use customize navbar with high-quality material design animation
+        // in high-perf jank-free CSS3 implementation
+        var $body = document.body;
+        var $toggle = document.querySelector('.navbar-toggle');
+        var $navbar = document.querySelector('#huxblog_navbar');
+        var $collapse = document.querySelector('.navbar-collapse');
+
+        var __HuxNav__ = {
+            close: function () {
+                $navbar.className = " ";
+                // wait until animation end.
+                setTimeout(function () {
+                    // prevent frequently toggle
+                    if ($navbar.className.indexOf('in') < 0) {
+                        $collapse.style.height = "0px"
+                    }
+                }, 400)
+            },
+            open: function () {
+                $collapse.style.height = "auto"
+                $navbar.className += " in";
+            }
+        }
+
+        // Bind Event
+        $toggle.addEventListener('click', function (e) {
+            if ($navbar.className.indexOf('in') > 0) {
+                __HuxNav__.close()
+            } else {
+                __HuxNav__.open()
+            }
+        })
+
+        /**
+         * Since Fastclick is used to delegate 'touchstart' globally
+         * to hack 300ms delay in iOS by performing a fake 'click',
+         * Using 'e.stopPropagation' to stop 'touchstart' event from 
+         * $toggle/$collapse will break global delegation.
+         * 
+         * Instead, we use a 'e.target' filter to prevent handler
+         * added to document close HuxNav.  
+         *
+         * Also, we use 'click' instead of 'touchstart' as compromise
+         */
+        document.addEventListener('click', function (e) {
+            if (e.target == $toggle) return;
+            if (e.target.className == 'icon-bar') return;
+            __HuxNav__.close();
+        })
+    </script>
+    <!-- Search -->
+<div class="search-page">
+  <div class="search-icon-close-container">
+    <span class="search-icon-close">
+      <i class="fa fa-chevron-down"></i>
+    </span>
+  </div>
+  <div class="search-main container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <form></form>
+        <input type="text" id="search-input" placeholder="$ grep...">
+        </form>
+        <div id="search-results" class="mini-post-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-2015.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+
+
+
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-2015.jpg');
+        background: ;
+    }
+
+    
+</style>
+
+<header class="intro-header" >
+
+    <div class="header-mask"></div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/archive/?tag=Bioinformatic+tools" title="Bioinformatic tools">Bioinformatic tools</a>
+                        
+                    </div>
+                    <h1>Sam 文件格式详解</h1>
+                    
+                    <h2 class="subheading"></h2>
+                    <span class="meta">Posted by Cooper on March 1, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <!-- Multi-Lingual -->
+                
+
+				<p><a href="https://blog.csdn.net/genome_denovo/article/details/78712972">sam文件介绍</a></p>
+
+<p>SAM：The Sequence Alignment / Map format</p>
+
+<p>sam文件：两部分，sam header 和alignment section</p>
+
+<h3 id="some-concepts">Some concepts</h3>
+
+<p>linear alignment</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>An alignment of a read to a single reference sequence that may include insertions,deletions, skips and clipping, but may not include direction changes (i.e., one portion of the alignment on forward strand and another portion of alignment on reverse strand). A linear alignment can be represented in a single SAM record.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Chimeric alignment  (非线性比对）</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>An alignment of a read that cannot be represented as a linear alignment. A chimeric alignment is represented as a set of linear alignments that do not have large overlaps. Typically, one of the linear alignments in a chimeric alignment is considered the “representative” alignment, and the others are called “supplementary” and are distinguished by the supplementary alignment flag. All the SAM records in a chimeric alignment have the same QNAME and the same values for 0x40 and 0x80 flags (see Section 1.4). The decision regarding which linear alignment is representative is arbitrary（任意的）.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>read alignment</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>A linear alignment or a chimeric alignment that is the complete representation of the alignment of the read.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>multiple mapping</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>The correct placement of a read may be ambiguous, e.g., due to repeats. In this case, there may be multiple read alignments for the same read. One of these alignments is considered primary. All the other alignments have the secondary alignment flag set in the SAM records that represent them. All the SAM records have the same QNAME and the same values for 0x40 and 0x80 flags. Typically the alignment designated primary is the best alignment, but the decision may be arbitrary.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="the-sam-header">The SAM Header</h3>
+
+<p><strong>samtools <code class="language-plaintext highlighter-rouge">查看头部信息</code></strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>samtools view -H mapped.sam 
+#bam文件也可以
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h4 id="hd">@HD</h4>
+
+<p>@HD     VN:1.0  SO:unsorted</p>
+
+<blockquote>
+  <p>——VN：格式版本；
+		——SO：比对排序类型(Sorting order of alignments)：unknown（default）；unsorted;queryname;coordinate
+		——更多类型看原文件</p>
+</blockquote>
+
+<p>samtools 查看SQ</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools view -H mapped.sam |grep "^@SQ"
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h4 id="sq">@SQ</h4>
+
+<p>@SQ     SN:reftig_1     LN:6668731
+		@SQ     SN:reftig_16    LN:5336258
+		@SQ     SN:reftig_19    LN:5151911
+			…….</p>
+
+<blockquote>
+  <p>——@SQ：Reference sequence dictionary. The order of @SQ lines defines the alignment sorting order.</p>
+
+  <p>——SN：参考序列名，</p>
+
+  <p>——LN：参考序列长度</p>
+
+  <p>——更多看原文件</p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools view -H mapped.sam |grep "^@PG"
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h4 id="pg">@PG</h4>
+
+<p>@PG     ID:hisat2       PN:hisat2       VN:2.1.0 CL:”/Users/cooper/miniconda3/envs/python3.5/bin/hisat2-align-s –wrapper basic-0 -p 4 –no-softclip –no-discordant –min-intronlen 20 –max-intronlen 5000 –rna-strandness FR -x hisat2_index/cs -S hisat2_results/mapped.sam -1 /tmp/4319.inpipe1 -2 /tmp/4319.inpipe2”</p>
+
+<blockquote>
+  <p>——@PG：program</p>
+
+  <p>——ID：program record identifier</p>
+
+  <p>——PN：program name</p>
+
+  <p>——VN：program version</p>
+
+  <p>——CL：command line</p>
+</blockquote>
+
+<h3 id="the-sam-alignment-section">The SAM Alignment Section</h3>
+
+<p>通常包含11列+1个可选列</p>
+
+<p>samtools 查看主体部分,+看第一行</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>Samtools view mapped.sam |head -n 1
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>samtools view mapped.sam |tr '\t' '\n'|head -n 11
+#tr '\t' '\n'：将\t——tab换成\n回车符，即换行
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<blockquote>
+  <p>ST-E00299:129:HMTFKCCXX:2:1101:5994:2346</p>
+
+  <p>73</p>
+
+  <p>reftig_23</p>
+
+  <p>715574</p>
+
+  <p>60</p>
+
+  <p>150M</p>
+
+  <p>=</p>
+
+  <p>715574</p>
+
+  <p>0</p>
+
+  <p>CGCCATCACCGGCGGTTGGTAGCCGTTAGGCGTCGCGAAAGAGTCGTCCCTCGGCTCGTACTCGGGCA</p>
+
+  <p>CGGACGAATAGTAGGCGTTGGCGGGATTGTGACGTGCCGATGACGTAGAATCGAAGTGAGAGTGGGAGG</p>
+
+  <p>AGGAGCCGGTGGA</p>
+
+  <p>AAFFFKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKAKKKKKKKKFKKKKKKKKFFKKKKKK</p>
+
+  <p>KKKKKKKKKKKKKKKKKKKKFKFKKKKKKKKKKKFK7FFKKKFFFKFFKKKKFKKKKK,FKKAFFKKKKK,AFF(</p>
+
+  <p>AAK</p>
+
+</blockquote>
+
+<p>——QNAME：（query name）比对的reads名称</p>
+
+<p>——FLAG：（bitwise flag）比对类型； 换成二进制格式</p>
+
+<p>可用samtools flags 查看并互换解释：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre>samtools flags
+##
+Flags:
+	0x1	PAIRED        .. paired-end (or multiple-segment) sequencing technology
+	0x2	PROPER_PAIR   .. each segment properly aligned according to the aligner
+	0x4	UNMAP         .. segment unmapped
+	0x8	MUNMAP        .. next segment in the template unmapped
+	0x10	REVERSE       .. SEQ is reverse complemented
+	0x20	MREVERSE      .. SEQ of the next segment in the template is reversed
+	0x40	READ1         .. the first segment in the template
+	0x80	READ2         .. the last segment in the template
+	0x100	SECONDARY     .. secondary alignment
+	0x200	QCFAIL        .. not passing quality controls
+	0x400	DUP           .. PCR or optical duplicate
+	0x800	SUPPLEMENTARY .. supplementary alignment
+	##
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>samtools flags 147
+##
+0x93	147	PAIRED,PROPER_PAIR,REVERSE,READ2
+##
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>samtools flags Paired，read2
+##
+0x41	65	PAIRED,READ1
+##
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>——RNAME：the reference name。未比对为：*</p>
+
+<p>——POS：（the position on the reference sequence）比对的位置信息。（using 1-based</p>
+
+<p>indexing）我的理解：假设最左端比对上的序列位置是5，则输出为5.未比对上为0.</p>
+
+<p>——MAPQ：（the mapping quality）比对质量，描述比对错误率，跟碱基质量差不多，如错误率百分百时，</p>
+
+<p>Q=-10log~10~P, P=1, 此时Q=0.</p>
+
+<p>——CIGAR:(the CIGAR string)描述比对情况，如matching bases；insertion/deletion，clipping等。</p>
+
+<h3 id="samtools-commandline">Samtools command—Line</h3>
+
+<p>参考《Bioinformatics Data Skills》</p>
+
+<p>知乎sam文件使用：https://zhuanlan.zhihu.com/p/49760719</p>
+
+<h3 id="1view">1.view</h3>
+
+<h5 id="usage">Usage</h5>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+</pre></td><td class="rouge-code"><pre>Usage: samtools view [options] &lt;in.bam&gt;|&lt;in.sam&gt; [region1 [...]]
+默认情况下不加 region，则是输出所有的 region.
+
+Options: -b       output BAM
+                  默认下输出是 SAM 格式文件，该参数设置输出 BAM 格式
+         -h       print header for the SAM output
+                  默认下输出的 sam 格式文件不带 header，该参数设定输出sam文件时带 header 信息
+         -H       print header only (no alignments)
+         -S       input is SAM
+                  默认下输入是 BAM 文件，若是输入是 SAM 文件，则最好加该参数，否则有时候会报错。
+         -u       uncompressed BAM output (force -b)
+                  该参数的使用需要有-b参数，能节约时间，但是需要更多磁盘空间。
+         -c       Instead of printing the alignments, only count them and print the 
+                  total number. All filter options, such as ‘-f’, ‘-F’ and ‘-q’ , 
+                  are taken into account.
+         -1       fast compression (force -b)
+         -x       output FLAG in HEX (samtools-C specific)
+         -X       output FLAG in string (samtools-C specific)
+         -c       print only the count of matching records
+         -L FILE  output alignments overlapping the input BED FILE [null]
+         -t FILE  list of reference names and lengths (force -S) [null]
+                  使用一个list文件来作为header的输入
+         -T FILE  reference sequence file (force -S) [null]
+                  使用序列fasta文件作为header的输入
+         -o FILE  output file name [stdout]
+         -R FILE  list of read groups to be outputted [null]
+         -f INT   required flag, 0 for unset [0]
+         -F INT   filtering flag, 0 for unset [0] 
+                  Skip alignments with bits present in INT [0]
+                  数字4代表该序列没有比对到参考序列上
+                  数字8代表该序列的mate序列没有比对到参考序列上
+         -q INT   minimum mapping quality [0]
+         -l STR   only output reads in library STR [null]
+         -r STR   only output reads in read group STR [null]
+         -s FLOAT fraction of templates to subsample; integer part as seed [-1]
+         -?       longer help
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h5 id="example">example：</h5>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre>将sam文件转换成bam文件
+$ samtools view -bS abc.sam &gt; abc.bam
+$ samtools view -b -S abc.sam -o abc.bam
+
+提取比对到参考序列上的比对结果
+$ samtools view -bF 4 abc.bam &gt; abc.F.bam
+
+提取paired reads中两条reads都比对到参考序列上的比对结果，只需要把两个4+8的值12作为过滤参数即可
+$ samtools view -bF 12 abc.bam &gt; abc.F12.bam
+
+提取没有比对到参考序列上的比对结果
+$ samtools view -bf 4 abc.bam &gt; abc.f.bam
+
+提取bam文件中比对到caffold1上的比对结果，并保存到sam文件格式
+$ samtools view abc.bam scaffold1 &gt; scaffold1.sam
+
+提取scaffold1上能比对到30k到100k区域的比对结果
+$ samtools view abc.bam scaffold1:30000-100000 $gt; scaffold1_30k-100k.sam
+
+根据fasta文件，将 header 加入到 sam 或 bam 文件中
+$ samtools view -T genome.fasta -h scaffold1.sam &gt; scaffold1.h.sam
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h5 id="sam-to-bam">sam to bam：</h5>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools view -b mapped.sam &gt; mapped.bam
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h5 id="bam-to-sam">Bam to sam:</h5>
+
+<p>no header（default）</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>samtools view mapped.bam &gt; mapped.sam
+#没有header的sam文件不能转bam文件，ru
+Samtools view -b mapped.sam &gt; mapped.bam
+#报错：
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>如果想要header：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools view -h mapped.bam &gt; mapped.sam
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="2sort">2.sort</h3>
+
+<p>根据比对位置排序：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools sort mapped.bam &gt; mapped.sorted.bam
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>可以选择core和memory</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools sort -@ 4 -m 8G mapped.bam &gt; mapped.sorted.bam
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="3index">3.index</h3>
+
+<p>为了让计算机更好的查找～我的理解</p>
+
+<p>建立索引后将产生后缀为.bai的文件，用于快速的随机处理。很多情况下需要有bai文件的存在，特别是显示序列比对情况下。比如samtool的tview命令就需要；gbrowse2显示reads的比对图形的时候也需要。</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>samtools index mapped.sorted.bam
+#生成mapped.sorted.bam.bai
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h5 id="根据位置提取想要的信息">根据位置提取想要的信息</h5>
+
+<p>如想提取reftig_23的某位置的比对情况：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre>samtools view mapped.sorted.bam reftig_23:715574-715600 |head -n 3
+##
+...
+ST-E00299:129:HMTFKCCXX:2:1113:28777:2856	147	reftig_23	715428	60 [...]
+...
+##
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>把上面提取的信息写入新的bam文件</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools view mapped.sorted.bam reftig_23:715574-715600 &gt; new.sorted.bam
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h5 id="filtering-alignment-with-samtools-view">Filtering alignment with samtools view</h5>
+
+<p>提取unmapped的reads：</p>
+
+<p>首先看ummapped对应的bitwise flags：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>samtools flags unmap
+0x4	4	UNMAP
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>-f ——保留特定flags的信息</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools view -f 4 mapped.bam 
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>看前三行：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools view -f 4 mapped.bam ｜head -n 3
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<blockquote>
+  <p>ST-E00299:129:HMTFKCCXX:2:1101:5994:2346	133	reftig_23	715574	0	*	=	715574	0	[…]</p>
+
+  <p>ST-E00299:129:HMTFKCCXX:2:1101:6177:2346	133	reftig_14	945545	0	*	=	945545	0	[…]</p>
+
+  <p>ST-E00299:129:HMTFKCCXX:2:1101:3579:2346	77	*	0	0	*	*	0	0	[…]</p>
+</blockquote>
+
+<p>查看113，77对应的比对情况：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>samtools flags 113
+0x85	133	PAIRED,UNMAP,READ2
+samtools flags 77
+0x4d	77	PAIRED,UNMAP,MUNMAP,READ1
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>如果想提取READ1，proper_pair:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>samtools flags read1，proper_pair
+0x42	66	PROPER_PAIR,READ1
+samtools view -f 66 mapped.sam &gt; mapped.youwant.bam
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>如果想提取mapped的reads，用-F参数，</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools view -F 4 mapped.bam &gt; mapped.hits.bam
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="4faidx">4.faidx</h3>
+
+<p>对fasta文件建立索引,生成的索引文件以.fai后缀结尾。该命令也能依据索引文件快速提取fasta文件中的某一条（子）序列</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre>Usage: samtools faidx &lt;in.bam&gt; [ [...]]
+
+对基因组文件建立索引
+$ samtools faidx genome.fasta
+生成了索引文件genome.fasta.fai,是一个文本文件，分成了5列。第一列是子序列的名称；
+第二列是子序列的长度；个人认为“第三列是序列所在的位置”，因为该数字从上往下逐渐变大，
+最后的数字是genome.fasta文件的大小；第4和5列不知是啥意思。于是通过此文件，可以定
+位子序列在fasta文件在磁盘上的存放位置，直接快速调出子序列。
+
+由于有索引文件，可以使用以下命令很快从基因组中提取到fasta格式的子序列
+$ samtools faidx genome.fasta scffold_10 &gt; scaffold_10.fasta
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="5tview">5.tview</h3>
+
+<p>tview能直观的显示出reads比对基因组的情况，和基因组浏览器有点类似。</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre>Usage: samtools tview &lt;aln.bam&gt; [ref.fasta]
+
+当给出参考基因组的时候，会在第一排显示参考基因组的序列，否则，第一排全用N表示。
+按下 g ，则提示输入要到达基因组的某一个位点。例子“scaffold_10:1000"表示到达第
+10号scaffold的第1000个碱基位点处。
+使用H(左）J（上）K（下）L（右）移动显示界面。大写字母移动快，小写字母移动慢。
+使用空格建向左快速移动（和 L 类似），使用Backspace键向左快速移动（和 H 类似）。
+Ctrl+H 向左移动1kb碱基距离； Ctrl+L 向右移动1kb碱基距离
+可以用颜色标注比对质量，碱基质量，核苷酸等。30～40的碱基质量或比对质量使用白色表示；
+20～30黄色；10～20绿色；0～10蓝色。
+使用点号'.'切换显示碱基和点号；使用r切换显示read name等
+还有很多其它的使用说明，具体按 ？ 键来查看。
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="6flagstat">6.flagstat</h3>
+
+<h3 id="7samtools-fastq">7.samtools fastq</h3>
+
+
+
+                <hr style="visibility: hidden;">
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/02/10/Hisat2%E7%9A%84%E4%BD%BF%E7%94%A8/" data-toggle="tooltip" data-placement="top" title="Hisat tutorial">
+                        Previous<br>
+                        <span>Hisat tutorial</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2022/02/10/Typora-image/" data-toggle="tooltip" data-placement="top" title="关于 Typora 的图片显示问题">
+                        Next<br>
+                        <span>关于 Typora 的图片显示问题</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+                <hr style="visibility: hidden;">
+
+                
+
+                
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+
+
+<section>
+    
+        <hr class="hidden-sm hidden-xs">
+    
+    <h5><a href="/archive/">FEATURED TAGS</a></h5>
+    <div class="tags">
+        
+        
+        
+        
+        
+        
+                <a data-sort="0001" 
+                    href="/archive/?tag=Bioinformatic+tools"
+                    title="Bioinformatic tools"
+                    rel="3">Bioinformatic tools</a>
+    </div>
+</section>
+
+
+                <!-- Friends Blog -->
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- add support for mathjax by voleking-->
+
+
+
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'hover',
+          placement: 'right',
+          // icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- SNS Link -->
+                
+
+
+<ul class="list-inline text-center">
+
+
+  
+  
+  <li>
+    <a href="https://twitter.com/chencooper1">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+  
+  
+  <li>
+    <a target="_blank" href="https://www.facebook.com/chen.zaohuang.90">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+  <li>
+    <a target="_blank" href="https://github.com/czhcooper">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+</ul>
+
+                <p class="copyright text-muted">
+                    Copyright &copy; Czh's Blog 2022
+                    <br>
+                    Powered by <a href="http://huangxuan.me">Hux Blog</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px"
+                        height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=huxpro&repo=huxpro.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<!-- Currently, only navbar scroll-down effect at desktop still depends on this -->
+<script src="/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+<!-- Simple Jekyll Search -->
+<script src="/js/simple-jekyll-search.min.js"></script>
+
+<!-- Service Worker -->
+
+<script src="/js/snackbar.js "></script>
+<script src="/js/sw-registration.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+        var d = document, t = 'script',
+            o = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        o.src = u;
+        if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+        s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!--
+     Because of the native support for backtick-style fenced code blocks
+     right within the Markdown is landed in Github Pages,
+     From V1.6, There is no need for Highlight.js,
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+
+
+
+
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function () {
+        var $nav = document.querySelector("nav");
+        if ($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog(selector) {
+
+        // interop with multilangual 
+        if ('' == 'true') {
+            _containerSelector = 'div.post-container.active'
+        } else {
+            _containerSelector = 'div.post-container'
+        }
+
+        // init
+        var P = $(_containerSelector), a, n, t, l, i, c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+
+        // clean
+        $(selector).html('')
+
+        // appending
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#" + $(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="' + i + '" rel="nofollow">' + t + '</a>');
+            l = $('<li class="' + n + '_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function (e) {
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+<!-- Multi-Lingual -->
+
+
+<!-- Simple Jekyll Search -->
+<script>
+    // https://stackoverflow.com/questions/1912501/unescape-html-entities-in-javascript
+    function htmlDecode(input) {
+        var e = document.createElement('textarea');
+        e.innerHTML = input;
+        // handle case of empty input
+        return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+    }
+
+    SimpleJekyllSearch({
+        searchInput: document.getElementById('search-input'),
+        resultsContainer: document.getElementById('search-results'),
+        json: '/search.json',
+        searchResultTemplate: '<div class="post-preview item"><a href="{url}"><h2 class="post-title">{title}</h2><h3 class="post-subtitle">{subtitle}</h3><hr></a></div>',
+        noResultsText: 'No results',
+        limit: 50,
+        fuzzy: false,
+        // a hack to get escaped subtitle unescaped. for some reason, 
+        // post.subtitle w/o escape filter nuke entire search.
+        templateMiddleware: function (prop, value, template) {
+            if (prop === 'subtitle' || prop === 'title') {
+                if (value.indexOf("code")) {
+                    return htmlDecode(value);
+                } else {
+                    return value;
+                }
+            }
+        }
+    });
+
+    $(document).ready(function () {
+        var $searchPage = $('.search-page');
+        var $searchOpen = $('.search-icon');
+        var $searchClose = $('.search-icon-close');
+        var $searchInput = $('#search-input');
+        var $body = $('body');
+
+        $searchOpen.on('click', function (e) {
+            e.preventDefault();
+            $searchPage.toggleClass('search-active');
+            var prevClasses = $body.attr('class') || '';
+            setTimeout(function () {
+                $body.addClass('no-scroll');
+            }, 400)
+
+            if ($searchPage.hasClass('search-active')) {
+                $searchClose.on('click', function (e) {
+                    e.preventDefault();
+                    $searchPage.removeClass('search-active');
+                    $body.attr('class', prevClasses);  // from closure 
+                });
+                $searchInput.focus();
+            }
+        });
+    });
+</script>
+
+
+<!-- Image to hack wechat -->
+<img src="/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

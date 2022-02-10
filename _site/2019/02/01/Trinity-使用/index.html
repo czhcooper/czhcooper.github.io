@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="I'm still searching for something I can dedicate my life to">
+    <meta name="keywords" content="陈灶煌, chen zaohuang, zaohuangchen,  陈灶煌的博客, 博客, 个人网站, 互联网, Web, JavaScript, 前端, 设计">
+    <meta name="theme-color" content="#000000">
+
+    <!-- Open Graph -->
+    <meta property="og:title"
+        content="Trinity tutorial - 陈灶煌的博客 | Cooper's Blog">
+    
+    <meta property="og:type" content="article">
+    <meta property="og:description" content="教程：
+">
+    
+    <meta property="article:published_time" content=" 2019-02-01T20:00:00Z">
+    
+    
+    <meta property="article:author" content="Cooper">
+    
+    
+    <meta property="article:tag" content="Bioinformatic tools">
+    
+    <meta property="article:tag" content="Ttranscriptome">
+    
+    
+    <meta property="og:image" content="http://localhost:4000img/home-my.png">
+    <meta property="og:url" content="http://localhost:4000/2019/02/01/Trinity-%E4%BD%BF%E7%94%A8/">
+    <meta property="og:site_name" content="陈灶煌的博客 | Cooper's Blog">
+
+    <title>Trinity tutorial - 陈灶煌的博客 | Cooper's Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="http://localhost:4000/2019/02/01/Trinity-%E4%BD%BF%E7%94%A8/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href=" /css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href=" /css/hux-blog.min.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet"
+        type="text/css">
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    <!-- Google AdSense -->
+    <script data-ad-client="ca-pub-6487568398225121" async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Czh's Blog</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div id="huxblog_navbar">
+                <div class="navbar-collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="/">Home</a>
+                        </li>
+                        
+                        
+                        
+                        
+                        <li>
+                            <a href="/about/">About</a>
+                        </li>
+                        
+                        
+                        
+                        <li>
+                            <a href="/archive/">Archive</a>
+                        </li>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <li class="search-icon">
+                            <a href="javascript:void(0)">
+                                <i class="fa fa-search"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <script>
+        // Drop Bootstarp low-performance Navbar
+        // Use customize navbar with high-quality material design animation
+        // in high-perf jank-free CSS3 implementation
+        var $body = document.body;
+        var $toggle = document.querySelector('.navbar-toggle');
+        var $navbar = document.querySelector('#huxblog_navbar');
+        var $collapse = document.querySelector('.navbar-collapse');
+
+        var __HuxNav__ = {
+            close: function () {
+                $navbar.className = " ";
+                // wait until animation end.
+                setTimeout(function () {
+                    // prevent frequently toggle
+                    if ($navbar.className.indexOf('in') < 0) {
+                        $collapse.style.height = "0px"
+                    }
+                }, 400)
+            },
+            open: function () {
+                $collapse.style.height = "auto"
+                $navbar.className += " in";
+            }
+        }
+
+        // Bind Event
+        $toggle.addEventListener('click', function (e) {
+            if ($navbar.className.indexOf('in') > 0) {
+                __HuxNav__.close()
+            } else {
+                __HuxNav__.open()
+            }
+        })
+
+        /**
+         * Since Fastclick is used to delegate 'touchstart' globally
+         * to hack 300ms delay in iOS by performing a fake 'click',
+         * Using 'e.stopPropagation' to stop 'touchstart' event from 
+         * $toggle/$collapse will break global delegation.
+         * 
+         * Instead, we use a 'e.target' filter to prevent handler
+         * added to document close HuxNav.  
+         *
+         * Also, we use 'click' instead of 'touchstart' as compromise
+         */
+        document.addEventListener('click', function (e) {
+            if (e.target == $toggle) return;
+            if (e.target.className == 'icon-bar') return;
+            __HuxNav__.close();
+        })
+    </script>
+    <!-- Search -->
+<div class="search-page">
+  <div class="search-icon-close-container">
+    <span class="search-icon-close">
+      <i class="fa fa-chevron-down"></i>
+    </span>
+  </div>
+  <div class="search-main container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <form></form>
+        <input type="text" id="search-input" placeholder="$ grep...">
+        </form>
+        <div id="search-results" class="mini-post-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-2015.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+
+
+
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-2015.jpg');
+        background: ;
+    }
+
+    
+</style>
+
+<header class="intro-header" >
+
+    <div class="header-mask"></div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/archive/?tag=Bioinformatic+tools" title="Bioinformatic tools">Bioinformatic tools</a>
+                        
+                        <a class="tag" href="/archive/?tag=Ttranscriptome" title="Ttranscriptome">Ttranscriptome</a>
+                        
+                    </div>
+                    <h1>Trinity tutorial</h1>
+                    
+                    <h2 class="subheading"></h2>
+                    <span class="meta">Posted by Cooper on February 1, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <!-- Multi-Lingual -->
+                
+
+				<h1 id="教程">教程：</h1>
+
+<p><a href="/Users/cooper/Desktop/转录组/RNA-seq overview/Trinity protoocl.pdf">Nature protoocl</a></p>
+
+<p><a href="https://github.com/trinityrnaseq/trinityrnaseq/wiki/Trinity-Differential-Expression">Trinity tutorial github</a></p>
+
+<p><a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3571712/">Trinity software paper</a></p>
+
+<h2 id="为什么要de-novo">为什么要de novo？：</h2>
+
+<p><strong>Genome-guided assembly</strong> VS   <strong>De novo assembly</strong>?</p>
+
+<p>1.缺乏高质量参考基因组，</p>
+
+<p>2.RNA-seq 可以注释转录基因和外显子结构</p>
+
+<p>Genomic DNA assembly: one locus-one contig</p>
+
+<p>Transcriptome : one contig per distinct transcript(isoform) rather than per locus;and different transcripts will have different coverage, reflecting their different expression levels.</p>
+
+<p>安装：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>conda create -n Trinity Trinity -y
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>使用：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre> Trinity --seqType fq --max_memory 50G --left reads_1.fq  --right reads_2.fq --CPU 6 --jaccard_clip
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>参数说明：</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+</pre></td><td class="rouge-code"><pre>必须的参数：
+--seqType     reads的类型：(cfa, cfq, fa, or fq)
+--JM          jellyfish使用多少G内存用来进行k-mer的计算，包含‘G’这个字符
+--left        左边的reads的文件名
+--rigth       右边的reads的文件名
+--single      不成对的reads的文件名
+
+可选参数：
+
+Misc：
+--SS_lib_type        reads的方向。成对的reads: RF or FR; 不成对的reads
+: F or R。在数据具有链特异性的时候，设置此参数，则正义和反义转录子能得到区分。默认
+情况下，不设置此参数，reads被当作非链特异性处理。FR: 匹配时，read1在5'端上游, 
+和前导链一致, read2在3'下游, 和前导链反向互补. 或者read2在上游, read1在下游反
+向互补; RF: read1在5'端上游, 和前导链反向互补, read2在3'端下游, 和前导链一致;
+--output             输出结果文件夹。默认情况下生成trinity_out_dir文件夹并
+将输出结果保存到此文件夹中。
+--CPU                使用的CPU线程数，默认为2
+--min_contig_length  报告出的最短的contig长度。默认为200
+--jaccard_clip       如果两个转录子之间有UTR区重叠，则这两个转录子很有可能在
+de novo组装的时候被拼接成一条序列，称为融合转录子(Fusion Transcript)。如果有
+fastq格式的paired reads，并尽可能减少此类组装错误，则选用此参数。值得说明的是：
+1. 适合于基因在基因组比较稠密，转录子经常在UTR区域重叠的物种，比如真菌基因组。而对
+于脊椎动物和植物，则不推荐使用此参数; 2. 要求fastq格式的paired reads文件(文件
+中reads名分别以/1和/2结尾，以利于软件识别)，同时还需要安装bowtie软件用于reads
+的比对; 3. 单独使用具有链特异性的RNA-seq数据的时候，能极大地减少UTR重叠区很小的
+融合转录子; 4. 此选项耗费运算，若没必要，则不用此参数。
+--prep               仅仅准备一些文件(利于I/O）并在kmer计算前停止程序运行
+--no_cleanup         保留所有的中间输入文件
+--full_cleanup       仅保留Trinity fasta文件，并重命名成${output_dir}.
+Trinity.fasta
+--cite               显示Trinity文献引证和一些参与的软件工具
+--version            报告Trinity版本并推出
+
+Inchworm 和 K-mer 计算相关选项：
+--min_kmer_cov      使用Inchworm来计算K-mer数量时候，设置的Kmer的最小值。
+默认为1
+--inchworm_cpu      Inchworm使用的CPU线程数，默认为6和--CPU设置的值中的
+小值。
+
+Chrysalis相关选项：
+--max_reads_per_graph   在一个Bruijn图中锚定的最大的reads数目，默认为200
+000
+--no_run_chrysalis      运行Inchworm完毕，在运行chrysalis之前停止运行
+Trinity
+--no_run_quantifygraph  在平行化运算quantifygrahp前停止运行Trinity
+
+Butterfly相关选项：
+--bfly_opts                    Butterfly额外的参数
+--max_number_of_paths_per_node 从node A -&gt; B,最多允许多少条路径。默认
+为10
+--group_pairs_distance         最大插入片读长度，默认为500
+--path_reinforcement_distance  延长转录子路径时候，reads间最小的重叠碱基
+数。默认PE:75; SE：25
+--no_triplet_lock              不锁定triplet-supported nodes
+--bflyHeapSpaceMax             运行Butterfly时java最大的堆积空间，默认
+为20G
+--bflyHeapSpaceInit            java初始的堆积空间，默认为1G
+--bflyGCThreads                java进行无用信息的整理时使用的线程数，默
+认由java来决定
+--bflyCPU                      运行Butterfly时使用的CPU线程数，默认为2
+--bflyCalculateCPU             计算Butterfly所运行的CPU线程数，由公式
+ 80% * max_memory / maxbflyHeapSpaceMax 得到
+--no_run_butterfly             在Chrysalis运行完毕后，停止运行Butterfly
+
+Grid-computing选项：
+--grid_computing_module   选定Perl模块，在/Users/bhaas/SVN/trinityr
+naseq/trunk/PerlLibAdaptors/。
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="results">results：</h1>
+
+<p><img src="/img/md-post/image-20200229210458849.png" alt="image-20200229210458849" /></p>
+
+<h2 id="评估组装质量">评估组装质量：</h2>
+
+<h3 id="1rna-seq-read-representation-by-trinity-assembly">1.RNA Seq Read Representation by Trinity Assembly</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>bowtie2-build Trinity.fasta Trinity.fasta
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>bowtie2 -p 30  -q --no-unal -k 20 -x Trinity.fasta -1 ../C1_1_1.fq -2 ../C1_1_2.fq  2&gt;align_stats.txt| samtools view -@30 -Sb -o bowtie2.bam &amp;
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre>30251890 reads; of these:
+  30251890 (100.00%) were paired; of these:
+    6978680 (23.07%) aligned concordantly 0 times
+    1325558 (4.38%) aligned concordantly exactly 1 time
+    21947652 (72.55%) aligned concordantly &gt;1 times
+    ----
+    6978680 pairs aligned concordantly 0 times; of these:
+      199258 (2.86%) aligned discordantly 1 time
+    ----
+    6779422 pairs aligned 0 times concordantly or discordantly; of these:
+      13558844 mates make up the pairs; of these:
+        1267412 (9.35%) aligned 0 times
+        243382 (1.80%) aligned exactly 1 time
+        12048050 (88.86%) aligned &gt;1 times
+97.91% overall alignment rate
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>比对率大于80%。</p>
+
+<h3 id="2full-length-transcript-analysis-for-model-and-non-model-organisms-using-blast">2.Full-length transcript analysis for model and non-model organisms using BLAST+</h3>
+
+<p>对全长转录本评估可从三方面：</p>
+
+<p>1.align the assembled transcripts to the <strong>reference transcripts</strong> and examine the length coverage.</p>
+
+<p>2.or non-model organisms, no such reference transcript set is available. If a high quality annotation exists for a closely related organism, then one might compare the assembled transcripts to that <strong>closely related transcriptome</strong> to examine full-length coverage.</p>
+
+<p>3.In other cases, a more general analysis to perform is to align the assembled transcripts against <strong>all known proteins</strong> and to determine the number of unique top matching proteins that align across more than X% of its length.</p>
+
+<p>操作：</p>
+
+<p>1.从 <a href="https://www.aniseed.cnrs.fr/aniseed/download/download_data"><strong>ANiseed</strong></a>  下载 <em>C.savignyi</em> 的 Transcript Models：</p>
+
+<p><img src="/img/md-post/image-20200301004658103.png" alt="image-20200301004658103" /></p>
+
+<p>为什么是protein？</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>服务器文件位置：~/data/clean_data/trinity_out_dir/protein_data
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>makeblastdb -in Ciona_savignyi.CSAV2.0.81_pep.2018.fa -dbtype prot
+
+blastx -query trinity_out_dir.Trinity.fasta -db protein_data/Ciona_savignyi.CSAV2.0.81_pep.2018.fa -out blastx.outfmt6 -evalue 1e-20 -num_threads 20 -max_target_seqs 1 -outfmt 6
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>analyze_blastPlus_topHit_coverage.pl blastx.outfmt6 trinity_out_dir.Trinity.fasta protein_data/Ciona_savignyi.CSAV2.0.81_pep.2018.fa 
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre>#hit_pct_cov_bin	count_in_bin	&gt;bin_below
+100	8770	8770
+90	815	9585
+80	724	10309
+70	711	11020
+60	741	11761
+50	839	12600
+40	910	13510
+30	1078	14588
+20	1317	15905
+10	691	16596
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="busco">BuSCO</h3>
+
+<p>参考：https://busco.ezlab.org/busco_userguide.html</p>
+
+<p>简书：https://www.jianshu.com/p/5041460f7a5d</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>busco -m MODE -i INPUT -o OUTPUT -l LINEAGE
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="/img/md-post/image-20200303192341715.png" alt="image-20200303192341715" /></p>
+
+<p><img src="/img/md-post/image-20200303181803710.png" alt="image-20200303181803710" /></p>
+
+<p><img src="/img/md-post/image-20200303192709631.png" alt="image-20200303192709631" /></p>
+
+<h2 id="下游分析">下游分析</h2>
+
+<h3 id="基于比对">基于比对</h3>
+
+<h4 id="rsem">rsem</h4>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>align_and_estimate_abundance.pl --transcripts trinity_out_dir.Trinity.fasta --seqType fq --samples_file ../samples_trinity.txt --est_method RSEM --output_dir transcript_quant --thread_count 54 --trinity_mode --aln_method bowtie2 --prep_reference
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+
+
+                <hr style="visibility: hidden;">
+                <ul class="pager">
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/02/10/Hisat2%E7%9A%84%E4%BD%BF%E7%94%A8/" data-toggle="tooltip" data-placement="top" title="Hisat tutorial">
+                        Next<br>
+                        <span>Hisat tutorial</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+                <hr style="visibility: hidden;">
+
+                
+
+                
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+
+
+<section>
+    
+        <hr class="hidden-sm hidden-xs">
+    
+    <h5><a href="/archive/">FEATURED TAGS</a></h5>
+    <div class="tags">
+        
+        
+        
+        
+        
+        
+                <a data-sort="0001" 
+                    href="/archive/?tag=Bioinformatic+tools"
+                    title="Bioinformatic tools"
+                    rel="3">Bioinformatic tools</a>
+    </div>
+</section>
+
+
+                <!-- Friends Blog -->
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- add support for mathjax by voleking-->
+
+
+
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'hover',
+          placement: 'right',
+          // icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- SNS Link -->
+                
+
+
+<ul class="list-inline text-center">
+
+
+  
+  
+  <li>
+    <a href="https://twitter.com/chencooper1">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+  
+  
+  <li>
+    <a target="_blank" href="https://www.facebook.com/chen.zaohuang.90">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+  <li>
+    <a target="_blank" href="https://github.com/czhcooper">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+</ul>
+
+                <p class="copyright text-muted">
+                    Copyright &copy; Czh's Blog 2022
+                    <br>
+                    Powered by <a href="http://huangxuan.me">Hux Blog</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px"
+                        height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=huxpro&repo=huxpro.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<!-- Currently, only navbar scroll-down effect at desktop still depends on this -->
+<script src="/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+<!-- Simple Jekyll Search -->
+<script src="/js/simple-jekyll-search.min.js"></script>
+
+<!-- Service Worker -->
+
+<script src="/js/snackbar.js "></script>
+<script src="/js/sw-registration.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+        var d = document, t = 'script',
+            o = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        o.src = u;
+        if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+        s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!--
+     Because of the native support for backtick-style fenced code blocks
+     right within the Markdown is landed in Github Pages,
+     From V1.6, There is no need for Highlight.js,
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+
+
+
+
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function () {
+        var $nav = document.querySelector("nav");
+        if ($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog(selector) {
+
+        // interop with multilangual 
+        if ('' == 'true') {
+            _containerSelector = 'div.post-container.active'
+        } else {
+            _containerSelector = 'div.post-container'
+        }
+
+        // init
+        var P = $(_containerSelector), a, n, t, l, i, c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+
+        // clean
+        $(selector).html('')
+
+        // appending
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#" + $(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="' + i + '" rel="nofollow">' + t + '</a>');
+            l = $('<li class="' + n + '_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function (e) {
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+<!-- Multi-Lingual -->
+
+
+<!-- Simple Jekyll Search -->
+<script>
+    // https://stackoverflow.com/questions/1912501/unescape-html-entities-in-javascript
+    function htmlDecode(input) {
+        var e = document.createElement('textarea');
+        e.innerHTML = input;
+        // handle case of empty input
+        return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+    }
+
+    SimpleJekyllSearch({
+        searchInput: document.getElementById('search-input'),
+        resultsContainer: document.getElementById('search-results'),
+        json: '/search.json',
+        searchResultTemplate: '<div class="post-preview item"><a href="{url}"><h2 class="post-title">{title}</h2><h3 class="post-subtitle">{subtitle}</h3><hr></a></div>',
+        noResultsText: 'No results',
+        limit: 50,
+        fuzzy: false,
+        // a hack to get escaped subtitle unescaped. for some reason, 
+        // post.subtitle w/o escape filter nuke entire search.
+        templateMiddleware: function (prop, value, template) {
+            if (prop === 'subtitle' || prop === 'title') {
+                if (value.indexOf("code")) {
+                    return htmlDecode(value);
+                } else {
+                    return value;
+                }
+            }
+        }
+    });
+
+    $(document).ready(function () {
+        var $searchPage = $('.search-page');
+        var $searchOpen = $('.search-icon');
+        var $searchClose = $('.search-icon-close');
+        var $searchInput = $('#search-input');
+        var $body = $('body');
+
+        $searchOpen.on('click', function (e) {
+            e.preventDefault();
+            $searchPage.toggleClass('search-active');
+            var prevClasses = $body.attr('class') || '';
+            setTimeout(function () {
+                $body.addClass('no-scroll');
+            }, 400)
+
+            if ($searchPage.hasClass('search-active')) {
+                $searchClose.on('click', function (e) {
+                    e.preventDefault();
+                    $searchPage.removeClass('search-active');
+                    $body.attr('class', prevClasses);  // from closure 
+                });
+                $searchInput.focus();
+            }
+        });
+    });
+</script>
+
+
+<!-- Image to hack wechat -->
+<img src="/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

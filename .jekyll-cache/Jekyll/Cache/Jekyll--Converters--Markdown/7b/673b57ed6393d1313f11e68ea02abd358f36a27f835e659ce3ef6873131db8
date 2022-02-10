@@ -1,0 +1,40 @@
+I"E<p>在<code class="language-plaintext highlighter-rouge">Typora</code>中设置 Image 的路径：</p>
+
+<p><img src="/img/md-post/2022-02-10-Typora%20image/Screen%20Shot%202022-02-10%20at%2006.45.22.png" alt="Screen Shot 2022-02-10 at 06.45.22" /></p>
+
+<p><img src="/img/md-post/2022-02-10-Typora%20image/Screen%20Shot%202022-02-10%20at%2006.46.19.png" alt="Screen Shot 2022-02-10 at 06.46.19" /></p>
+
+<p>此后在<code class="language-plaintext highlighter-rouge">Typora</code>中插入图片后，图片的位置会自动保存在<code class="language-plaintext highlighter-rouge">../img/md-post/${filename}</code>，这里是指去上一个目录找<code class="language-plaintext highlighter-rouge">img/md-post</code>文件夹，<code class="language-plaintext highlighter-rouge">${filename}</code>是图片的文件名。</p>
+
+<p>而后，在写<code class="language-plaintext highlighter-rouge">markdown</code>的时候，将<code class="language-plaintext highlighter-rouge">typora-root-url</code>的路径设置为<code class="language-plaintext highlighter-rouge">../</code>,如下所示：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre>---
+layout:     post
+title:      "Trinity tutorial"
+subtitle:   
+date:       2019-02-01 12:00:00
+author:     "Cooper"
+header-img: "img/post-bg-2015.jpg"
+catalog: true
+typora-root-url: ../
+tags:
+    - Bioinformatic tools
+    - Ttranscriptome
+---    
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>此时，无论在<code class="language-plaintext highlighter-rouge">Typora</code>或 <code class="language-plaintext highlighter-rouge">Jekyll</code>中都能正常显示图片啦。</p>
+:ET

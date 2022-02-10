@@ -1,0 +1,537 @@
+I"�X<p>sam文件介绍：https://blog.csdn.net/genome_denovo/article/details/78712972</p>
+
+<p>SAM：The Sequence Alignment / Map format</p>
+
+<p>sam文件：两部分，sam header 和alignment section</p>
+
+<h3 id="some-concepts">Some concepts</h3>
+
+<p>linear alignment</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>An alignment of a read to a single reference sequence that may include insertions,deletions, skips and clipping, but may not include direction changes (i.e., one portion of the alignment on forward strand and another portion of alignment on reverse strand). A linear alignment can be represented in a single SAM record.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Chimeric alignment  (非线性比对）</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>An alignment of a read that cannot be represented as a linear alignment. A chimeric alignment is represented as a set of linear alignments that do not have large overlaps. Typically, one of the linear alignments in a chimeric alignment is considered the “representative” alignment, and the others are called “supplementary” and are distinguished by the supplementary alignment flag. All the SAM records in a chimeric alignment have the same QNAME and the same values for 0x40 and 0x80 flags (see Section 1.4). The decision regarding which linear alignment is representative is arbitrary（任意的）.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>read alignment</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>A linear alignment or a chimeric alignment that is the complete representation of the alignment of the read.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>multiple mapping</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>The correct placement of a read may be ambiguous, e.g., due to repeats. In this case, there may be multiple read alignments for the same read. One of these alignments is considered primary. All the other alignments have the secondary alignment flag set in the SAM records that represent them. All the SAM records have the same QNAME and the same values for 0x40 and 0x80 flags. Typically the alignment designated primary is the best alignment, but the decision may be arbitrary.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="the-sam-header">The SAM Header</h3>
+
+<p><strong>samtools <code class="language-plaintext highlighter-rouge">查看头部信息</code></strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>samtools view -H mapped.sam 
+#bam文件也可以
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h4 id="hd">@HD</h4>
+
+<p>@HD     VN:1.0  SO:unsorted</p>
+
+<blockquote>
+  <p>——VN：格式版本；
+		——SO：比对排序类型(Sorting order of alignments)：unknown（default）；unsorted;queryname;coordinate
+		——更多类型看原文件</p>
+</blockquote>
+
+<p>samtools 查看SQ</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools view -H mapped.sam |grep "^@SQ"
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h4 id="sq">@SQ</h4>
+
+<p>@SQ     SN:reftig_1     LN:6668731
+		@SQ     SN:reftig_16    LN:5336258
+		@SQ     SN:reftig_19    LN:5151911
+			…….</p>
+
+<blockquote>
+  <p>——@SQ：Reference sequence dictionary. The order of @SQ lines defines the alignment sorting order.</p>
+
+  <p>——SN：参考序列名，</p>
+
+  <p>——LN：参考序列长度</p>
+
+  <p>——更多看原文件</p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools view -H mapped.sam |grep "^@PG"
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h4 id="pg">@PG</h4>
+
+<p>@PG     ID:hisat2       PN:hisat2       VN:2.1.0 CL:”/Users/cooper/miniconda3/envs/python3.5/bin/hisat2-align-s –wrapper basic-0 -p 4 –no-softclip –no-discordant –min-intronlen 20 –max-intronlen 5000 –rna-strandness FR -x hisat2_index/cs -S hisat2_results/mapped.sam -1 /tmp/4319.inpipe1 -2 /tmp/4319.inpipe2”</p>
+
+<blockquote>
+  <p>——@PG：program</p>
+
+  <p>——ID：program record identifier</p>
+
+  <p>——PN：program name</p>
+
+  <p>——VN：program version</p>
+
+  <p>——CL：command line</p>
+</blockquote>
+
+<h3 id="the-sam-alignment-section">The SAM Alignment Section</h3>
+
+<p>通常包含11列+1个可选列</p>
+
+<p>samtools 查看主体部分,+看第一行</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>Samtools view mapped.sam |head -n 1
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>samtools view mapped.sam |tr '\t' '\n'|head -n 11
+#tr '\t' '\n'：将\t——tab换成\n回车符，即换行
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<blockquote>
+  <p>ST-E00299:129:HMTFKCCXX:2:1101:5994:2346</p>
+
+  <p>73</p>
+
+  <p>reftig_23</p>
+
+  <p>715574</p>
+
+  <p>60</p>
+
+  <p>150M</p>
+
+  <p>=</p>
+
+  <p>715574</p>
+
+  <p>0</p>
+
+  <p>CGCCATCACCGGCGGTTGGTAGCCGTTAGGCGTCGCGAAAGAGTCGTCCCTCGGCTCGTACTCGGGCACGGACGAATAGTAGGCGTTGGCGGGATTGTGACGTGCCGATGACGTAGAATCGAAGTGAGAGTGGGAGGAGGAGCCGGTGGA</p>
+
+  <p>AAFFFKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKAKKKKKKKKFKKKKKKKKFFKKKKKKKKKKKKKKKKKKKKKKKKKKFKFKKKKKKKKKKKFK7FFKKKFFFKFFKKKKFKKKKK,FKKAFFKKKKK,AFF(AAK</p>
+
+</blockquote>
+
+<p>——QNAME：（query name）比对的reads名称</p>
+
+<p>——FLAG：（bitwise flag）比对类型； 换成二进制格式</p>
+
+<p>可用samtools flags 查看并互换解释：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre>samtools flags
+##
+Flags:
+	0x1	PAIRED        .. paired-end (or multiple-segment) sequencing technology
+	0x2	PROPER_PAIR   .. each segment properly aligned according to the aligner
+	0x4	UNMAP         .. segment unmapped
+	0x8	MUNMAP        .. next segment in the template unmapped
+	0x10	REVERSE       .. SEQ is reverse complemented
+	0x20	MREVERSE      .. SEQ of the next segment in the template is reversed
+	0x40	READ1         .. the first segment in the template
+	0x80	READ2         .. the last segment in the template
+	0x100	SECONDARY     .. secondary alignment
+	0x200	QCFAIL        .. not passing quality controls
+	0x400	DUP           .. PCR or optical duplicate
+	0x800	SUPPLEMENTARY .. supplementary alignment
+	##
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>samtools flags 147
+##
+0x93	147	PAIRED,PROPER_PAIR,REVERSE,READ2
+##
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>samtools flags Paired，read2
+##
+0x41	65	PAIRED,READ1
+##
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>——RNAME：the reference name。未比对为：*</p>
+
+<p>——POS：（the position on the reference sequence）比对的位置信息。（using 1-based</p>
+
+<p>indexing）我的理解：假设最左端比对上的序列位置是5，则输出为5.未比对上为0.</p>
+
+<p>——MAPQ：（the mapping quality）比对质量，描述比对错误率，跟碱基质量差不多，如错误率百分百时，</p>
+
+<p>Q=-10log~10~P, P=1, 此时Q=0.</p>
+
+<p>——CIGAR:(the CIGAR string)描述比对情况，如matching bases；insertion/deletion，clipping等。</p>
+
+<h3 id="samtools-commandline">Samtools command—Line</h3>
+
+<p>参考《Bioinformatics Data Skills》</p>
+
+<p>知乎sam文件使用：https://zhuanlan.zhihu.com/p/49760719</p>
+
+<h3 id="1view">1.view</h3>
+
+<h5 id="usage">Usage</h5>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+</pre></td><td class="rouge-code"><pre>Usage: samtools view [options] &lt;in.bam&gt;|&lt;in.sam&gt; [region1 [...]]
+默认情况下不加 region，则是输出所有的 region.
+
+Options: -b       output BAM
+                  默认下输出是 SAM 格式文件，该参数设置输出 BAM 格式
+         -h       print header for the SAM output
+                  默认下输出的 sam 格式文件不带 header，该参数设定输出sam文件时带 header 信息
+         -H       print header only (no alignments)
+         -S       input is SAM
+                  默认下输入是 BAM 文件，若是输入是 SAM 文件，则最好加该参数，否则有时候会报错。
+         -u       uncompressed BAM output (force -b)
+                  该参数的使用需要有-b参数，能节约时间，但是需要更多磁盘空间。
+         -c       Instead of printing the alignments, only count them and print the 
+                  total number. All filter options, such as ‘-f’, ‘-F’ and ‘-q’ , 
+                  are taken into account.
+         -1       fast compression (force -b)
+         -x       output FLAG in HEX (samtools-C specific)
+         -X       output FLAG in string (samtools-C specific)
+         -c       print only the count of matching records
+         -L FILE  output alignments overlapping the input BED FILE [null]
+         -t FILE  list of reference names and lengths (force -S) [null]
+                  使用一个list文件来作为header的输入
+         -T FILE  reference sequence file (force -S) [null]
+                  使用序列fasta文件作为header的输入
+         -o FILE  output file name [stdout]
+         -R FILE  list of read groups to be outputted [null]
+         -f INT   required flag, 0 for unset [0]
+         -F INT   filtering flag, 0 for unset [0] 
+                  Skip alignments with bits present in INT [0]
+                  数字4代表该序列没有比对到参考序列上
+                  数字8代表该序列的mate序列没有比对到参考序列上
+         -q INT   minimum mapping quality [0]
+         -l STR   only output reads in library STR [null]
+         -r STR   only output reads in read group STR [null]
+         -s FLOAT fraction of templates to subsample; integer part as seed [-1]
+         -?       longer help
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h5 id="example">example：</h5>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre>将sam文件转换成bam文件
+$ samtools view -bS abc.sam &gt; abc.bam
+$ samtools view -b -S abc.sam -o abc.bam
+
+提取比对到参考序列上的比对结果
+$ samtools view -bF 4 abc.bam &gt; abc.F.bam
+
+提取paired reads中两条reads都比对到参考序列上的比对结果，只需要把两个4+8的值12作为过滤参数即可
+$ samtools view -bF 12 abc.bam &gt; abc.F12.bam
+
+提取没有比对到参考序列上的比对结果
+$ samtools view -bf 4 abc.bam &gt; abc.f.bam
+
+提取bam文件中比对到caffold1上的比对结果，并保存到sam文件格式
+$ samtools view abc.bam scaffold1 &gt; scaffold1.sam
+
+提取scaffold1上能比对到30k到100k区域的比对结果
+$ samtools view abc.bam scaffold1:30000-100000 $gt; scaffold1_30k-100k.sam
+
+根据fasta文件，将 header 加入到 sam 或 bam 文件中
+$ samtools view -T genome.fasta -h scaffold1.sam &gt; scaffold1.h.sam
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h5 id="sam-to-bam">sam to bam：</h5>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools view -b mapped.sam &gt; mapped.bam
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h5 id="bam-to-sam">Bam to sam:</h5>
+
+<p>no header（default）</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>samtools view mapped.bam &gt; mapped.sam
+#没有header的sam文件不能转bam文件，ru
+Samtools view -b mapped.sam &gt; mapped.bam
+#报错：
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>如果想要header：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools view -h mapped.bam &gt; mapped.sam
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="2sort">2.sort</h3>
+
+<p>根据比对位置排序：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools sort mapped.bam &gt; mapped.sorted.bam
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>可以选择core和memory</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools sort -@ 4 -m 8G mapped.bam &gt; mapped.sorted.bam
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="3index">3.index</h3>
+
+<p>为了让计算机更好的查找～我的理解</p>
+
+<p>建立索引后将产生后缀为.bai的文件，用于快速的随机处理。很多情况下需要有bai文件的存在，特别是显示序列比对情况下。比如samtool的tview命令就需要；gbrowse2显示reads的比对图形的时候也需要。</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>samtools index mapped.sorted.bam
+#生成mapped.sorted.bam.bai
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h5 id="根据位置提取想要的信息">根据位置提取想要的信息</h5>
+
+<p>如想提取reftig_23的某位置的比对情况：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre>samtools view mapped.sorted.bam reftig_23:715574-715600 |head -n 3
+##
+...
+ST-E00299:129:HMTFKCCXX:2:1113:28777:2856	147	reftig_23	715428	60 [...]
+...
+##
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>把上面提取的信息写入新的bam文件</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools view mapped.sorted.bam reftig_23:715574-715600 &gt; new.sorted.bam
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h5 id="filtering-alignment-with-samtools-view">Filtering alignment with samtools view</h5>
+
+<p>提取unmapped的reads：</p>
+
+<p>首先看ummapped对应的bitwise flags：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>samtools flags unmap
+0x4	4	UNMAP
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>-f ——保留特定flags的信息</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools view -f 4 mapped.bam 
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>看前三行：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools view -f 4 mapped.bam ｜head -n 3
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<blockquote>
+  <p>ST-E00299:129:HMTFKCCXX:2:1101:5994:2346	133	reftig_23	715574	0	*	=	715574	0	[…]</p>
+
+  <p>ST-E00299:129:HMTFKCCXX:2:1101:6177:2346	133	reftig_14	945545	0	*	=	945545	0	[…]</p>
+
+  <p>ST-E00299:129:HMTFKCCXX:2:1101:3579:2346	77	*	0	0	*	*	0	0	[…]</p>
+</blockquote>
+
+<p>查看113，77对应的比对情况：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>samtools flags 113
+0x85	133	PAIRED,UNMAP,READ2
+samtools flags 77
+0x4d	77	PAIRED,UNMAP,MUNMAP,READ1
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>如果想提取READ1，proper_pair:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>samtools flags read1，proper_pair
+0x42	66	PROPER_PAIR,READ1
+samtools view -f 66 mapped.sam &gt; mapped.youwant.bam
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>如果想提取mapped的reads，用-F参数，</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>samtools view -F 4 mapped.bam &gt; mapped.hits.bam
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="4faidx">4.faidx</h3>
+
+<p>对fasta文件建立索引,生成的索引文件以.fai后缀结尾。该命令也能依据索引文件快速提取fasta文件中的某一条（子）序列</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre>Usage: samtools faidx &lt;in.bam&gt; [ [...]]
+
+对基因组文件建立索引
+$ samtools faidx genome.fasta
+生成了索引文件genome.fasta.fai,是一个文本文件，分成了5列。第一列是子序列的名称；
+第二列是子序列的长度；个人认为“第三列是序列所在的位置”，因为该数字从上往下逐渐变大，
+最后的数字是genome.fasta文件的大小；第4和5列不知是啥意思。于是通过此文件，可以定
+位子序列在fasta文件在磁盘上的存放位置，直接快速调出子序列。
+
+由于有索引文件，可以使用以下命令很快从基因组中提取到fasta格式的子序列
+$ samtools faidx genome.fasta scffold_10 &gt; scaffold_10.fasta
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="5tview">5.tview</h3>
+
+<p>tview能直观的显示出reads比对基因组的情况，和基因组浏览器有点类似。</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre>Usage: samtools tview &lt;aln.bam&gt; [ref.fasta]
+
+当给出参考基因组的时候，会在第一排显示参考基因组的序列，否则，第一排全用N表示。
+按下 g ，则提示输入要到达基因组的某一个位点。例子“scaffold_10:1000"表示到达第
+10号scaffold的第1000个碱基位点处。
+使用H(左）J（上）K（下）L（右）移动显示界面。大写字母移动快，小写字母移动慢。
+使用空格建向左快速移动（和 L 类似），使用Backspace键向左快速移动（和 H 类似）。
+Ctrl+H 向左移动1kb碱基距离； Ctrl+L 向右移动1kb碱基距离
+可以用颜色标注比对质量，碱基质量，核苷酸等。30～40的碱基质量或比对质量使用白色表示；
+20～30黄色；10～20绿色；0～10蓝色。
+使用点号'.'切换显示碱基和点号；使用r切换显示read name等
+还有很多其它的使用说明，具体按 ？ 键来查看。
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="6flagstat">6.flagstat</h3>
+
+<h3 id="7samtools-fastq">7.samtools fastq</h3>
+
+:ET

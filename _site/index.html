@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="">
+    <meta name="description" content="I'm still searching for something I can dedicate my life to">
     <meta name="keywords" content="陈灶煌, chen zaohuang, zaohuangchen,  陈灶煌的博客, 博客, 个人网站, 互联网, Web, JavaScript, 前端, 设计">
     <meta name="theme-color" content="#000000">
 
@@ -230,37 +230,134 @@
       col-xs-12 postlist-container">
       
 <div class="post-preview">
-    <a href="/2015/01/29/Test/">
+    <a href="/2022/02/10/Typora-image/">
         <h2 class="post-title">
-            Welcome to Hux Blog
+            关于 Typora 的图片显示问题
         </h2>
-        
-        <h3 class="post-subtitle">
-             "Hello World, Hello Blog"
-        </h3>
         
         <div class="post-content-preview">
             
-                
-  “Yeah It’s on. ”
+                在Typora中设置 Image 的路径：
 
 
-前言
 
-Hux 的 Blog 就这么开通了。
 
-跳过废话，直接看技术实现 
 
-2015 年，Hux 总算有个地方可以好好写点东西了。
+此后在Typora中插入图片后，图片的位置会自动保存在../img/md-post/${filename}，这里是指去上一个目录找img/md-post文件夹，${filename}是图片的文件名。
 
-作为一个程序员， Blog 这种轮子要是挂在大众博客程序上就太没意思了。一是觉得大部分 Blog 服务都太丑，二是觉得不能随便定制不好玩。之前因为太懒没有折腾，结果就一直连个写 Blog 的地儿都没有。
+而后，在写markdown的时候，将typora-root-url的路径设置为../,如下所示：
 
-在玩了一...
+1
+2
+3
+4
+5
+6
+7
+8
+9
+1...
             
         </div>
     </a>
     <p class="post-meta">
-        Posted by Hux on January 29, 2015
+        Posted by Cooper on February 10, 2022
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2019/03/01/Sam%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3/">
+        <h2 class="post-title">
+            Sam 文件格式详解
+        </h2>
+        
+        <div class="post-content-preview">
+            
+                sam文件介绍
+
+SAM：The Sequence Alignment / Map format
+
+sam文件：两部分，sam header 和alignment section
+
+Some concepts
+
+linear alignment
+
+1
+An alignment of a read to a single reference sequence that may include ...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Cooper on March 1, 2019
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2019/02/10/Hisat2%E7%9A%84%E4%BD%BF%E7%94%A8/">
+        <h2 class="post-title">
+            Hisat tutorial
+        </h2>
+        
+        <div class="post-content-preview">
+            
+                Hisat算法原理
+
+
+
+一、建立索引
+
+建立基因组索引
+
+1
+2
+#NCBI:
+hisat2-build -p 4 GCF_000224145.3_KH_genomic (1).fna   hisat2_index/
+
+
+建立基因组+转录组+SNP索引：
+bowtie2的索引只有基因组序列信息，tophat2比对时，转录组信息通过-G参数指定。HISAT2建立索引时，就应该把转录组信息加进...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Cooper on February 10, 2019
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2019/02/01/Trinity-%E4%BD%BF%E7%94%A8/">
+        <h2 class="post-title">
+            Trinity tutorial
+        </h2>
+        
+        <div class="post-content-preview">
+            
+                教程：
+
+Nature protoocl
+
+Trinity tutorial github
+
+Trinity software paper
+
+为什么要de novo？：
+
+Genome-guided assembly VS   De novo assembly?
+
+1.缺乏高质量参考基因组，
+
+2.RNA-seq 可以注释转录基因和外显子结构
+
+Genomic DNA assembly: o...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Cooper on February 1, 2019
     </p>
 </div>
 <hr>
@@ -286,6 +383,11 @@ Hux 的 Blog 就这么开通了。
         
         
         
+        
+                <a data-sort="0001" 
+                    href="/archive/?tag=Bioinformatic+tools"
+                    title="Bioinformatic tools"
+                    rel="3">Bioinformatic tools</a>
     </div>
 </section>
 
@@ -323,7 +425,7 @@ Hux 的 Blog 就这么开通了。
   
   
   <li>
-    <a target="_blank" href="https://www.facebook.com/Chen Zaohuang">
+    <a target="_blank" href="https://www.facebook.com/chen.zaohuang.90">
       <span class="fa-stack fa-lg">
         <i class="fa fa-circle fa-stack-2x"></i>
         <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
@@ -393,7 +495,7 @@ Hux 的 Blog 就这么开通了。
   
   
   <li>
-    <a target="_blank" href="https://www.facebook.com/Chen Zaohuang">
+    <a target="_blank" href="https://www.facebook.com/chen.zaohuang.90">
       <span class="fa-stack fa-lg">
         <i class="fa fa-circle fa-stack-2x"></i>
         <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>

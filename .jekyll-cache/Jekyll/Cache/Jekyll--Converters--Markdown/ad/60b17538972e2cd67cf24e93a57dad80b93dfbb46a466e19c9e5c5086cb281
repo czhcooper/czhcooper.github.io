@@ -1,0 +1,164 @@
+I"�<h1 id="hisat算法原理">Hisat算法原理</h1>
+
+<p><img src="/Users/cooper/Desktop/%E6%96%87%E7%8C%AE/typora/science/image-20191115155030163.png" alt="image-20191115155030163" /></p>
+
+<h1 id="一建立索引">一、建立索引</h1>
+
+<p>建立基因组索引</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>#NCBI:
+hisat2-build -p 4 GCF_000224145.3_KH_genomic (1).fna   hisat2_index/
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>建立基因组+转录组+SNP索引：
+bowtie2的索引只有基因组序列信息，tophat2比对时，转录组信息通过-G参数指定。HISAT2建立索引时，就应该把转录组信息加进去。</p>
+
+<h3 id="gff文件与gtf文件">GFF文件与GTF文件：</h3>
+
+<p>GFF: general feature format</p>
+
+<p>GTF: gene transfer format</p>
+
+<p>简介：https://www.jianshu.com/p/a27be34d335d</p>
+
+<p>http://www.biotrainee.com/thread-415-1-1.html</p>
+
+<p>将GFF文件转换未GTF</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>#安装
+conda install gffread -y
+#使用
+gffread GCF_000224145.3_KH_genomic\ \(1\).gff -T -o GCF_000224145.3_KH_genomic.gtf
+#更多使用方法请看网站
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>HISAT2提供两个Python脚本将GTF文件转换成hisat2-build能使用的文件：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>hisat2_extract_exons.py *gtf &gt; GCF_000224145.3_KH_genomic.exon
+hisat2_extract_splice_sites.py *gtf &gt; GCF_000224145.3_KH_genomic.ss
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>此外，HISAT2还支持将SNP信息加入到索引中，这样比对的时候就可以考虑SNP的情况。这仍然需要将SNP文件转换成hisat2-build能使用的文件：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>#还未看懂输入文件
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>将基因组、转录组、SNP建立索引：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>#这里未将snp文件输入
+hisat2-build -p 4 *fna --ss *ss --exon *exon hisat2_index_2/ciona_intestinalis_index
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="/Users/cooper/Desktop/%E6%96%87%E7%8C%AE/typora/science/image-20200305193830623.png" alt="image-20200305193830623" /></p>
+
+<h1 id="二比对">二、比对</h1>
+
+<h4 id="usage">Usage:</h4>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>hisat2 [options]* -x &lt;hisat2-idx&gt; {-1 &lt;m1&gt; -2 &lt;m2&gt; | -U &lt;r&gt; | --sra-acc &lt;SRA accession number&gt;} [-S &lt;hit&gt;]
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="默认参数">默认参数</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>0-6/0_6_1.fq.gz -2 0-6/0_6_2.fq.gz  -S hisat2_results/0-6.sam
+
+#解压后比对，结果貌似一样
+time hisat2 -p 4 -x ciona_intestinalis/NCBI/hisat2_index_2/ciona_intestinalis_index -1 0-6/0_6_1.fq -2 0-6/0_6_2.fq -S hisat2_results/deault_paramaters/0-6_gunzip.sam &gt; hisat2_results/deault_paramaters/logs 2&gt;&amp;1
+#用时：
+real	32m35.504s
+user	101m19.816s
+sys	8m12.721s
+
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="for-sl-quant">for SL-quant：</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre># 1) end-to-end (without soft-clipping)---in order to make sure that reads originating from trans-spliced RNA fragments do not map.This is the default behaviour of many mappers (bowtie2, tophat2, BBMap, …) but for others, such as STAR or HiSAT2, soft-clipping should be disabled.
+
+#比对
+time hisat2 -p 4 --no-softclip --no-discordant --min-intronlen 20 --max-intronlen 5000 --rna-strandness FR -x ciona_intestinalis/NCBI/hisat2_index_2/ciona_intestinalis_index -1 0-6/0_6_1.fq -2 0-6/0_6_2.fq -S hisat2_results/SL_paramaters/0_6_.sam &gt; hisat2_results/SL_paramaters/logs 2&gt;&amp;1
+#参数
+--no-softclip:
+--min-mitronlen:
+--max-intronlen
+--rna-strandness
+
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>-p : threads数</p>
+
+<p>-x :参考基因组索引文件的前缀</p>
+
+<p>-1 :双端测序结果的第一个文件。若有多组数据，使用逗号将文件分隔。Reads的长度可以不一致</p>
+
+<p>-2 :双端测序结果的第二个文件。若有多组数据，使用逗号将文件分隔，并且文件顺序要和-1参数对应。Reads的长度可以不一致</p>
+
+<p>-U :单端数据文件。若有多组数据，使用逗号将文件分隔。可以和-1、-2参数同时使用。Reads的长度可以不一致</p>
+
+<p>–sra-acc :输入SRA登录号，比如SRR353653，SRR353654。多组数据之间使用逗号分隔。HISAT将自动下载并识别数据类型，进行比对</p>
+
+<p>-S :指定输出的SAM文件</p>
+
+<p>-q:输入文件为FASTQ格式。FASTQ格式为默认参数</p>
+
+<p>-f : 输入文件为FASTA格式</p>
+
+<p>-r : 输入文件中，每一行代表一条序列，没有序列名和测序质量等。选择此项时，–ignore-quals参数也会被选择</p>
+
+<p>-c : 此参数后是直接比对的序列，而不是包含序列的文件名。序列间用逗号隔开。选择此项时，–ignore-quals参数也会被选择</p>
+
+<p>-s/–skip <int>
+跳过输入文件中前条序列进行比对。
+-u/–qupto <int>
+只使用输入文件中前条序列进行比对，默认是没有限制。
+-5/–trim5 <int>
+比对前去除每条序列5’端个碱基
+-3/–trim3 <int>
+比对前去除每条序列3’端个碱基
+–phred33
+输入的FASTQ文件碱基质量值编码标准为phred33，phred33为默认参数。
+–phred64
+输入的FASTQ文件碱基质量值编码标准为phred64。
+–solexa-quals
+将Solexa的碱基质量值编码标准转换为phred。
+–int-quals</int></int></int></int></p>
+
+<h3 id="question">Question:</h3>
+
+<ol>
+  <li>比较一下直接用genome.fa 与多种数据建立的index，比对的结果有何区别？</li>
+</ol>
+
+:ET

@@ -12,6 +12,51 @@ tags:
     
 ---
 
+## Packages' installation in R
+
+R packages are collections of functions and dataset developed by their authors.
+
+**What are repositories?**
+
+A repository is a plcae where packages are located so you can install them from it. Although you might have a local repository, typically R packages are located at remote servers and you can install them online. There are three most popular repositories for R as following:
+
+- [CRAN](https://cran.r-project.org/): the official repository, it is a network of ftp and web servers maintained by the R community around the world. The R foundation coordinates it, and for a package to be published here, it needs to pass several tests that ensure the package is following CRAN policies. You can find more details [here](https://cran.r-project.org/web/packages/policies.html).
+- [Bioconductor](https://www.bioconductor.org/): this is a topic specific repository, intended for open source software for bioinformatics. As CRAN, it has its own [submission and review processes](https://www.bioconductor.org/developers/package-submission/), and its community is very active having several conferences and meetings per year.
+- [Github](https://github.com/) : although this is not R specific, Github is probably the most popular repository for open source projects. Its popularity comes from the unlimited space for open source, the integration with git, a version control software, and its ease to share and collaborate with others. But be aware that there is no review process associated with it.
+
+**How to install An R Package**
+
+Install an R package from CRAN
+
+```
+install.packages("vioplot")
+```
+
+Install it from a specific repository (CRAN mirrors). You can select your micro by using `chooseCRANmirror()`or just adding "repo"parameter after `install.package`
+
+```
+install.packages("vioplot", repo = "https://lib.ugent.be/CRAN/")
+
+```
+
+or change "repo" to Tsinghua's mirror
+
+```
+install.packages("vioplot", repo = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/")
+```
+
+
+
+**Install R package from  Bioconductor**
+
+```
+BiocManager::install("DESeq2")
+```
+
+
+
+
+
 
 
 The first thing to do is checking what kind of proxy you're using. I'm using V2ray now, so check it's configure:
@@ -40,3 +85,8 @@ If the above resolution doesn't work, try this at **Rstudio**: using http proxy
 Sys.setenv(all_proxy="http://127.0.0.1:8001")
 ```
 
+
+
+# Reference
+
+[Installation of R package](https://www.datacamp.com/community/tutorials/r-packages-guide) 

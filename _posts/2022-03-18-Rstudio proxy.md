@@ -8,7 +8,8 @@ header-img: "img/post-bg-2015.jpg"
 catalog: true
 typora-root-url: ../
 tags:
-    - Typora
+    - R
+    - Proxy
     
 ---
 
@@ -83,6 +84,22 @@ If the above resolution doesn't work, try this at **Rstudio**: using http proxy
 
 ```
 Sys.setenv(all_proxy="http://127.0.0.1:8001")
+```
+
+If you want to remove this variable:
+
+```
+Sys.unsetenv("all_proxy")
+```
+
+
+
+Can not install packages from GitHub using `devtools::install_github()`? Try the following codes:
+
+```
+options(download.file.method = "libcurl") # or you can change the "libcurl" to "wget", which just works for me
+
+options(download.file.method = "wget")
 ```
 
 

@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      "Snakelike Tutorial"
+title:      "Snakemake Tutorial"
 author:     "Cooper"
 header-img: "img/post-bg-2015.jpg"
 catalog: true

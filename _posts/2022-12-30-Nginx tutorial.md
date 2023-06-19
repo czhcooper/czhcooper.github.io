@@ -9,9 +9,14 @@ tags:
      - Web application
 ---
 
+# Introduction to NGINX
+
+- It can handle a higher number of concurrent requests.
+- It has faster static content delivery with low resource usage.
 
 
-# 安装Nginx
+
+# Install Nginx
 
 ```
 vi /etc/yum.repos.d/nginx.repo
@@ -117,6 +122,14 @@ http://服务器IP：81
 ```
 
 ![Screenshot 2022-12-30 at 11.01.46](/img/md-post/2022-12-30-Nginx%20tutorial/Screenshot%202022-12-30%20at%2011.01.46.png)
+
+
+
+# Configure Nginx
+
+
+
+
 
 #### 参考材料
 

@@ -17,44 +17,44 @@ Deploy Shiny App on CentOS 7
 
 what you need:
 
-- R
+• R
 
-- shiny 
+• Shiny
 
-- shiny server
+•Shiny server
 
-  
 
-  # Install R  and R packages with conda
 
-  step 1: configure yours `.condarc` file, add 清华源:
+# Install R  and R packages with conda
 
-  ```
-  channels:
-    - defaults
-  show_channel_urls: true
-  default_channels:
-    - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
-    - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
-    - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
-  custom_channels:
-    conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-    msys2: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-    bioconda: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-    menpo: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-    pytorch: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-    pytorch-lts: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-    simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-  ```
+step 1: configure yours `.condarc` file, add 清华源:
 
-  step 2: install r-base by using conda
+```
+channels:
+  - defaults
+show_channel_urls: true
+default_channels:
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
+custom_channels:
+  conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  msys2: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  bioconda: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  menpo: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  pytorch: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  pytorch-lts: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+```
 
-  ```
-  conda search r-base
-  conda install r-base=4.2.0
-  ```
+step 2: install r-base by using conda
 
-  step 3: install devtools,  shiny, tidyverse, DT
+```
+conda search r-base
+conda install r-base=4.2.0
+```
+
+step 3: install devtools,  shiny, tidyverse, DT
 
 ```
 conda install r-devtools

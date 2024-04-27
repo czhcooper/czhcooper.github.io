@@ -1,1 +1,9 @@
-Hi, I am *Cooper* (Zaohuang Chen), a Bioinformatics Engineer, and serve as the IT manager in my company. I enjoy being a 'slash' youth, having transitioned from a major in Civil Engineering to Biological research, and now working in the field of Bioinformatics. My wide range of interests includes Biology, Bioinformatics algorithms, programming, web development, and data visualization, among others. Furthermore, I took a two-year hiatus from my sophomore year in college to serve in the military.
+Hey, I'm Cooper, a slashie with a knack for both biosciences and computing. I've worked as a bioinformatics engineer at a startup, handling website construction and maintenance as well as the development of bio-software.
+
+Besides that, I'm an experienced cat owner, tending to two American Shorthair sisters—one golden shaded and one silver shaded munchkin. My goal is to adopt another golden shaded brother and a pair of Corgis.
+
+![image-20240427222515007](../img/md-post/image-20240427222515007.png)
+
+I love wandering around and soaking up sights; my current stomping grounds are in Guangzhou. I dream of being a digital nomad, not confined to any specific spot.
+
+![image-20240427221309269](../img/md-post/image-20240427221309269.png)

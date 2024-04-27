@@ -1,8 +1,8 @@
 
 
-Hey, I'm Cooper, a slashie with a knack for both biosciences and computing. I've worked as a bioinformatics engineer at a startup, handling website construction and maintenance as well as the development of bio-software. I am working hard to become an independent developer that satisfies my own standards.
+Hello, I'm Cooper—a versatile professional with a dual passion for biosciences and coding. I have experience as a bioinformatics engineer at a startup, where I managed website construction and maintenance, in addition to developing bio-software. I'm currently dedicated to becoming an independent developer who meets my own standards.
 
-Besides that, I'm an experienced cat owner, tending to two American Shorthair girl—one golden shaded and one silver shaded munchkin. My goal is to adopt another golden shaded boy and a pair of Corgis.
+Besides that, I’m an avid cat lover, caring for two American Shorthairs—a golden shaded girl and a silver shaded munchkin. My goal is to adopt another golden shaded boy and a pair of Corgis.
 
 ![image-20240427222515007](../../img/image-20240427222515007.png)
 

@@ -120,7 +120,7 @@ export -f download_url
 printf "%s\n" "${urls[@]}" | parallel -j12 download_url
 ```
 
-==<u>In one word, you can use `curl` to concurrently download files from NCBI with no limit.</u>== However, the true limit is your network bandwidth and CPU resources.
+==<u>In a word, you can use `curl` to concurrently download files from NCBI with no limit.</u>== However, the true limit is your network bandwidth and CPU resources.
 
 #E-utilities vs E-direct
 

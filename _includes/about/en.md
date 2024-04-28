@@ -10,3 +10,4 @@ I love wandering around and soaking up sights; my current stomping grounds are i
 
 ![image-20240427221309269](../../img/image-20240427221309269.png)
 
+I'm here to blog because I want the freedom to say whatever I feel like, whenever I feel like it.  No rules, no holding back.  Just pure, unfiltered thoughts.
